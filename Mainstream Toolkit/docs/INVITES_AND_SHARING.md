@@ -35,3 +35,5 @@ Railway supports domain search, registration, and attachment: https://docs.railw
 `Mainstream Toolkit/.env.stripe` is ignored by Git and excluded from Docker uploads. Nonempty runtime variables take precedence over its local defaults. Aliases map product 001 to Writer and product 002 to Unlock. The supplied original images are copied byte-for-byte into `web_platform/static/products/writer.png` and `unlock.png`.
 
 The supplied Writer price is a live **$18/month recurring** price. The current app implements a **one-time $18 / 4,320-block** membership; Unlock is a one-time $27 price. These are different billing models. Checkout remains disabled pending the owner's choice; catalog credentials alone do not enable recurring billing. The webhook is registered for completed, async-success, and expired Checkout sessions. No real charge was made.
+
+The supplied credentials and catalog IDs are now configured in both Railway services with checkout disabled. Stripe product images point to the verified production PNGs. Webhook signature acceptance and rejection were checked without creating an order or charge.

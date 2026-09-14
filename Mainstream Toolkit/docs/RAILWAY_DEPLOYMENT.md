@@ -64,3 +64,17 @@ Deployed code commit `e278e14` from the local `feature/wallet-payments-discovery
 - Stripe credentials and the ordinal index are absent. Card collection and native ordinal trading remain disabled. No real wallet login, charge, or Bitcoin trade was performed during deployment.
 
 Local development server and membership worker were started separately with the ignored local SQLite database. Restart with `make run` and `make worker` from the repository root.
+
+## Admin invites and sharing deployed — 2026-09-14
+
+Code commit `eafd6a2` is deployed to both services:
+
+- Web `42985b82-eee5-4e31-bea7-89c3efad836c` — SUCCESS.
+- Worker `dbb58bfb-a5de-4bbe-8867-5de11c034a86` — SUCCESS.
+- Migration 0011 adds invite settings, hashed invitation codes, redemptions, and complimentary publishing access.
+- Validation: 100 Django tests passed on PostgreSQL, including concurrent last-use invitation redemption; 13 frontend tests passed. Django checks and migration consistency passed. Browser preview verified public sharing icons, copy-link feedback, unlimited admin membership, and invite management controls.
+- Production health, homepage, sharing JavaScript, and both product PNGs returned 200. PNG hashes match the supplied images. Unauthenticated invite access redirects to sign-in.
+- Supplied Stripe keys, webhook secret, and catalog IDs are configured in web and worker environments. `STRIPE_ENABLED=0` is retained pending the one-time versus recurring Writer billing choice. A signed no-order webhook check returned 200; an invalid signature returned 400. No payment order or charge was created.
+- Stripe Writer and Unlock product images now point to the verified production static PNG URLs.
+
+See [invite operation, sharing, and five domain choices](INVITES_AND_SHARING.md). No custom domain has been purchased or attached. Production admin authentication was not exercised; the local browser preview used an isolated disposable database.
