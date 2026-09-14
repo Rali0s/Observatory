@@ -1,0 +1,46 @@
+.mobile-only,.mobile-navigation{display:none!important}
+@media(max-width:767px){
+ :root{--card-padding:20px;--card-gap:18px;--section-gap:24px}
+ .desktop-only,.desktop-navigation,.mobile-limited-content{display:none!important}
+ .mobile-only{display:block!important}
+ .masthead{padding:16px 16px 0;gap:10px;display:block}
+ .masthead .brand{display:block;text-align:center;margin:0 auto 8px}
+ .masthead .observatory-wordmark{width:220px!important;height:auto;max-width:80vw}
+ .mobile-navigation{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;width:100%;font-size:.9rem}
+ .mobile-navigation a{display:flex;align-items:center;justify-content:center;min-height:48px;text-decoration:none;border-bottom:3px solid transparent}
+ .mobile-navigation a[aria-current]{border-color:var(--green);font-weight:700}
+ .mobile-reading-note{padding:10px 16px;background:#e8ecdf;text-align:center;font-size:.75rem;line-height:1.5}
+ main{padding:24px 16px 40px;max-width:100%;overflow-wrap:anywhere}
+ main h1,.welcome h1{font-size:clamp(30px,8vw,40px);line-height:1.18}
+ main h2{font-size:25px;line-height:1.25}main h3{font-size:21px}
+ .lede{font-size:1rem;line-height:1.6}.eyebrow{font-size:.65rem;letter-spacing:.12em}
+ .room-heading{margin-bottom:12px;gap:12px}.room-heading h1{margin-bottom:10px}
+ .room-grid,.two-column,.welcome{display:block}.room-grid>section{min-width:0}
+ .subnav{gap:18px;font-size:.875rem;margin-bottom:18px;padding-bottom:8px;max-width:100%}
+ .subnav a{display:inline-flex;align-items:center;min-height:44px}
+ .paper,.feed-post{padding:20px}.feed-post h2{font-size:26px;margin:16px 0 12px}
+ .post-excerpt{font-size:17px;line-height:1.65}.post-meta{font-size:.8rem;gap:6px 12px}
+ .read-link,.back,.mobile-secondary{display:inline-flex;align-items:center;min-height:44px}
+ .discovery-filter{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;padding:16px}
+ .discovery-filter input,.discovery-filter select{width:100%;min-width:0}.discovery-filter label{margin:0}
+ .discovery-filter button{width:100%}.filter-heading{font-size:20px}
+ .reading-column,.author-heading{width:100%;max-width:100%;margin:10px 0 28px}
+ .published-prose{font-size:18px;line-height:1.8;margin:24px 0}.published-prose h1{font-size:32px}.published-prose h2{font-size:27px}.published-prose h3{font-size:23px}
+ .published-prose pre{overflow-x:auto}.author-heading h1{overflow-wrap:anywhere}
+ input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea{font-size:16px;max-width:100%;min-height:44px}
+ button,.download{min-height:44px;font-size:1rem;max-width:100%}
+ .social-share{gap:7px}.social-share a,.social-share button{min-width:44px;min-height:44px;font-size:.8rem}
+ .social-share a span{display:none}.social-share .share-caption{flex-basis:100%;margin-bottom:2px}
+ .account-form,.login{padding:22px;width:100%;max-width:100%}.welcome{margin:0}.welcome>.login{margin:0}
+ .account-form .helptext,.login .helptext{font-size:.8rem}.account-form ul{padding-left:20px}
+ .account-form form>button,.invite-landing form>button{width:100%;margin-top:10px}
+ .mobile-account-links{margin-top:20px}.mobile-account-links>a{display:block;padding:13px 0;border-bottom:1px solid var(--line)}
+ .mobile-account-links form{margin-top:18px}.desktop-required .download{margin:10px 0}
+ .mobile-join{font-size:.875rem;display:block;padding:12px 0;line-height:1.5}
+ footer{padding:20px 16px;font-size:.75rem;line-height:1.5}
+ .author-directory{display:block}.author-directory>.paper{margin-bottom:18px}
+ .invite-code{font-size:.875rem}.pagination{gap:16px;padding:16px 0}
+}
+.mobile-limited-content>.paper+.paper{margin-top:var(--card-gap)}
+
+@media(max-width:767px){.masthead .observatory-wordmark{margin-inline:auto}.reading-filters{margin:0 0 20px}.reading-filters>summary{cursor:pointer;border:1px solid var(--line);padding:13px 16px;border-radius:6px;font-size:.9rem;background:var(--surface)}.reading-filters>summary::after{content:' +';float:right}.reading-filters[open]>summary::after{content:' −'}.reading-filters form{margin-top:10px}.discovery-grid{grid-template-columns:1fr!important}}

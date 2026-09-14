@@ -131,4 +131,7 @@ def authenticate(request):
             return JsonResponse({'error': 'This account is inactive.'}, status=403)
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     destination = '/account/collection/' if item.address.startswith('bc1p') and user_id else '/account/'
+    from .invite_views import pending_code
+    if pending_code(request):
+        destination = '/invite/'
     return JsonResponse({'ok': True, 'redirect': destination})

@@ -40,6 +40,20 @@ class WalletAuthTests(TestCase):
         self.assertEqual(self.submit(proof).status_code, 400)
         self.assertEqual(get_user_model().objects.count(), 1)
 
+    def test_wallet_login_returns_to_invite_without_redeeming(self):
+        from .invites import issue
+        from .models import InviteRedemption
+        admin = get_user_model().objects.create_user('inviter', is_staff=True)
+        _, code = issue(admin, label='Wallet invitation', kind='lifetime', max_uses=1)
+        self.client.post(reverse('invite-landing'), {'code': code, 'action': 'signin'})
+        response = self.submit(self.challenge())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['redirect'], reverse('invite-landing'))
+        self.assertEqual(self.client.get(reverse('invite-landing')).context['form']['code'].value(), code)
+        self.assertFalse(InviteRedemption.objects.exists())
+        self.client.post(reverse('invite-landing'), {'code': code, 'action': 'redeem'})
+        self.assertEqual(InviteRedemption.objects.count(), 1)
+
     def test_signature_is_bound_to_address_message_session_and_expiry(self):
         proof = self.challenge()
         self.assertEqual(self.submit(proof, Client()).status_code, 400)

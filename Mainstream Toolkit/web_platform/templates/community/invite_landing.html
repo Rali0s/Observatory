@@ -1,0 +1,7 @@
+{% extends 'base.html' %}{% block title %}Your invitation · The Observatory{% endblock %}{% block content %}
+<section class="paper account-form invite-landing"><p class="eyebrow">A PLACE IN THE READING ROOM</p><h1>You're invited.</h1><p>Use your code to unlock free three-month or lifetime publishing access. No card is required.</p>
+{% if user.is_authenticated %}<p>Signed in as <strong>{{ user.username }}</strong>.</p><p>Your access: {{ state.label }}{% if state.access_expires_at %} · until {{ state.access_expires_at|date:'F j, Y' }}{% endif %}.</p>{% endif %}
+<form method="post" action="{% url 'invite-landing' %}" id="invite-entry">{% csrf_token %}{{ form.as_p }}
+{% if user.is_authenticated %}<button name="action" value="redeem">Redeem invite</button>{% else %}<button name="action" value="signup">Create account & continue</button><button class="quiet" name="action" value="signin">Sign in & continue</button><p class="small">Your code will be kept for one hour while you sign up or sign in. You'll confirm redemption after signing in.</p>{% endif %}</form>
+<p><a href="{% url 'feed' %}">Browse the Reading Room</a></p><p class="mobile-only small">Reading is available here on mobile. Use the desktop site to write and publish once your invite is redeemed.</p></section>
+{% endblock %}

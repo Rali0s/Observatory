@@ -44,7 +44,7 @@ TEMPLATES = [{'BACKEND': 'django.template.backends.django.DjangoTemplates',
     'OPTIONS': {'context_processors': [
         'django.template.context_processors.request',
         'django.contrib.auth.context_processors.auth',
-        'django.contrib.messages.context_processors.messages']}}]
+        'django.contrib.messages.context_processors.messages', 'studio.mobile.mobile_context']}}]
 WSGI_APPLICATION = 'observatory.wsgi.application'
 ASGI_APPLICATION = 'observatory.asgi.application'
 if os.getenv('POSTGRES_DB'):

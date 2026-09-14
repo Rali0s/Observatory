@@ -1,6 +1,7 @@
 import hashlib
 from .voting import with_votes
 from . import stripe_payments, invites
+from .invite_views import pending_code
 from .achievements import public_unlock, progress
 from .storage import budget
 from .direct_payments import ready as direct_ready
@@ -84,7 +85,7 @@ def read(request, publication_id):
 @require_http_methods(['GET', 'POST'])
 def signup(request):
     if request.user.is_authenticated:
-        return redirect('account')
+        return redirect('invite-landing' if pending_code(request) else 'account')
     form = SignupForm(request.POST or None)
     if request.method == 'POST':
         # Rate-limit by connection address. Configure Redis for shared production limits.
@@ -102,7 +103,7 @@ def signup(request):
                 user = form.save()
                 AuthorProfile.objects.create(user=user, pen_name=form.cleaned_data['pen_name'])
             login(request, user)
-            return redirect('account')
+            return redirect('invite-landing' if pending_code(request) else 'account')
     return render(request, 'community/signup.html', {'form': form})
 
 

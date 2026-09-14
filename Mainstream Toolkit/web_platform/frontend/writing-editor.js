@@ -113,6 +113,12 @@ export function enhance(textarea) {
   try {initial=localStorage.getItem('observatory-editor-mode')||'visual';} catch {}
   switchMode(initial==='markdown'?'markdown':'visual',false);
 }
-for(const textarea of document.querySelectorAll('textarea[data-writing-editor]')) {
-  try {enhance(textarea);} catch {textarea.hidden=false;}
+const desktopViewport=window.matchMedia('(min-width: 768px)');
+function startEditors() {
+  if(!desktopViewport.matches) return;
+  for(const textarea of document.querySelectorAll('textarea[data-writing-editor]')) {
+    try {enhance(textarea);} catch {textarea.hidden=false;}
+  }
 }
+startEditors();
+desktopViewport.addEventListener('change',startEditors);

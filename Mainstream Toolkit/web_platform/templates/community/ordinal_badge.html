@@ -1,1 +1,2 @@
-{% load static %}{% if post.ordinal.status == 'minted' %}<a class="ordinal-badge" href="{% url 'ordinal' post.id %}"><img src="{% static 'observatory-sats.svg' %}" width="28" height="28" alt="">Bitcoin ordinal · {% if post.ordinal.sat_rarity %}{{ post.ordinal.sat_rarity|capfirst }} sat{% else %}Verified edition{% endif %}</a>{% endif %}
+<div class="desktop-only">{% load static %}{% if post.ordinal.status == 'minted' %}<a class="ordinal-badge" href="{% url 'ordinal' post.id %}"><img src="{% static 'observatory-sats.svg' %}" width="28" height="28" alt="">Bitcoin ordinal · {% if post.ordinal.sat_rarity %}{{ post.ordinal.sat_rarity|capfirst }} sat{% else %}Verified edition{% endif %}</a>{% endif %}
+</div>

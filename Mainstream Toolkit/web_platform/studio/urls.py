@@ -3,6 +3,7 @@ from .voting import vote
 from . import ordinal_views, achievement_views, wallet_auth, stripe_views, discovery, market_views
 from . import views, community, story_views, bitcoin_views, invite_views
 urlpatterns = [
+    path('invite/', invite_views.landing, name='invite-landing'),
     path('account/invites/', invite_views.dashboard, name='invites'),
     path('account/invites/settings/', invite_views.settings, name='invite-settings'),
     path('account/invites/<uuid:invitation_id>/revoke/', invite_views.revoke, name='invite-revoke'),
