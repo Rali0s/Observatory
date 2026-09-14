@@ -114,3 +114,17 @@ Code commit `4a960f2` is deployed to web (`8c5f7e79-4523-4822-95f3-8878ff3f3878`
 - Local development was migrated and restarted. Existing payment switches and domain settings were preserved.
 
 See [account merging behavior and operations](ACCOUNT_MERGING.md).
+
+## Guided ordinal minting deployed — 2026-09-14
+
+Code commit `5e861f8` is live on web (`57c7e8ca-a604-4ef4-8297-890075e12690`) and worker (`88d83477-7223-40de-954f-5689f364e20f`), both SUCCESS. No database migration was needed.
+
+- Replaced JSON entry with guided edition fields and add/remove metadata traits. Regular mode hides rare-sat controls. Linked-wallet discovery lists classical Ordinal rarity from confirmed indexed outputs; signed choices are checked again when freezing.
+- Miner estimates use live sats/vB recommendations, UTF-8 content size, commit/reveal size estimates, and a separate postage allowance. Regular minting requires a current signed fee quote. Launch platform fee is explicitly **0 sats** in both services and local development.
+- Registered all three supplied public wallet references and explicitly configured Gamma's public mainnet sat/rune index. Existing payment and trading switches were preserved. Shared membership/redemption references are not reused as individual invoice addresses.
+- Validation: all 134 Django tests passed against PostgreSQL; SQLite completed 134 with 5 PostgreSQL-only tests skipped. All 19 frontend tests, Django checks, migration consistency, and whitespace checks passed.
+- Local browser verification covered adding traits, a live fee estimate, regular/special visibility, fixture-wallet rare-sat selection, and successful freezing of the selected sat into the Gamma flow. Real Xverse signatures, Bitcoin broadcasts, and payments were not performed. Gamma's live index and mempool fee endpoints responded successfully.
+- Production health, login, and ordinal directory returned HTTP 200. Anonymous wallet-sat access redirects to login. The deployed ordinal-builder JavaScript/CSS and Xverse inscription JavaScript match the tested local asset hashes.
+- The worker had one startup chain lookup failure, then recovered on its next scheduled check and verified Bitcoin mainnet block 966,979. Local development was restarted; disposable preview services were stopped.
+
+Special-sat execution remains a manual Gamma step because Xverse's standard inscription API cannot select a specific sat. Fee estimates exclude provider charges; the wallet/provider presents the final transaction. See [ordinal edition operation and fee policy](ORDINAL_EDITIONS.md).
