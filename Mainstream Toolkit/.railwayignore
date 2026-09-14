@@ -14,3 +14,31 @@ web_platform/staticfiles/
 web_platform/**/__pycache__/
 
 **/node_modules/**
+
+# Exclude local credentials from direct deployment uploads and image contexts
+**/.env*
+**/secrets/**
+**/credentials/**
+**/secrets.*
+**/credentials.*
+**/api_keys.*
+**/api-keys.*
+**/apikeys.*
+**/service-account*.json
+**/service_account*.json
+**/client_secret*.json
+**/token.json
+**/tokens.json
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.keystore
+**/*.dump
+**/*.sql
+**/*.log
+.env*
+secrets/
+credentials/
+tmp/
+dist/

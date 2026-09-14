@@ -1,0 +1,11 @@
+title = "Observatory secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Two fixed passwords used only to create disposable accounts in automated tests"
+condition = "AND"
+paths = ['''(^|/)Mainstream Toolkit/web_platform/studio/test_(merging|concurrency)\.py$''']
+regexTarget = "secret"
+regexes = ['''^(Wallet-long-pass-4827|Second-pass-123)$''']

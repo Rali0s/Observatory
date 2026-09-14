@@ -1,0 +1,29 @@
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.png binary
+*.jpg binary
+*.webp binary
+
+# Defense in depth for git archive; .gitignore does not remove tracked files.
+.env* export-ignore
+**/.env* export-ignore
+.env.example -export-ignore
+**/.env.example -export-ignore
+**/secrets.* export-ignore
+**/credentials.* export-ignore
+**/api_keys.* export-ignore
+**/api-keys.* export-ignore
+**/apikeys.* export-ignore
+**/service-account*.json export-ignore
+**/service_account*.json export-ignore
+**/client_secret*.json export-ignore
+**/*.pem export-ignore
+**/*.key export-ignore
+**/*.p12 export-ignore
+**/*.pfx export-ignore
+**/*.sqlite3* export-ignore
+Res/ export-ignore
+tmp/ export-ignore
+dist/ export-ignore

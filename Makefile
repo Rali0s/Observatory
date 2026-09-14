@@ -2,7 +2,7 @@ PYTHON ?= python3.12
 APP := Mainstream Toolkit/web_platform
 PY := .venv/bin/python
 
-.PHONY: setup build check test run worker
+.PHONY: setup build check test run worker archive
 setup:
 	$(PYTHON) -m venv .venv
 	$(PY) -m pip install -r "$(APP)/requirements.txt"
@@ -23,3 +23,5 @@ run:
 	$(PY) "$(APP)/manage.py" runserver 127.0.0.1:8000
 worker:
 	$(PY) "$(APP)/manage.py" sync_memberships --loop
+archive:
+	$(PYTHON) scripts/archive.py
