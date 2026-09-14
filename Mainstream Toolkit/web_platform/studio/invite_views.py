@@ -3,7 +3,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
+from django.db import transaction
+from django.db.models import Case, When, Value, CharField, F, Q, Sum
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods, require_POST
 from . import invites
@@ -17,6 +21,27 @@ class IssueForm(forms.Form):
     max_uses = forms.IntegerField(min_value=1, max_value=10000, initial=1, label='Maximum people')
     redeem_before = forms.DateTimeField(required=False, label='Redeem before (UTC, optional)',
         widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
+
+
+class ManageForm(forms.Form):
+    label = forms.CharField(max_length=100, label='Campaign name')
+    max_uses = forms.IntegerField(min_value=1, max_value=10000, label='Maximum people')
+    redeem_before = forms.DateTimeField(required=False, label='Redeem before (UTC, optional)',
+        widget=forms.DateTimeInput(format='%Y-%m-%dT%H:%M', attrs={'type':'datetime-local'}))
+    enabled = forms.BooleanField(required=False, label='Allow new redemptions')
+
+
+def managed_invitations(user):
+    if not invites.can_issue(user):
+        raise PermissionDenied
+    items = Invitation.objects.select_related('created_by')
+    if not is_admin(user):
+        items = items.filter(created_by=user)
+    return items.annotate(management_status=Case(
+        When(enabled=False, then=Value('disabled')),
+        When(redeem_before__lte=timezone.now(), then=Value('expired')),
+        When(uses__gte=F('max_uses'), then=Value('used')),
+        default=Value('available'), output_field=CharField()))
 
 
 @login_required
@@ -33,13 +58,58 @@ def dashboard(request):
             form = IssueForm()
         except ValueError as exc:
             form.add_error(None, str(exc))
-    items = Invitation.objects.select_related('created_by').order_by('-created_at')
-    if not is_admin(request.user):
-        items = items.filter(created_by=request.user)
+    items = managed_invitations(request.user)
+    totals = {'codes':items.count(), 'redemptions':items.aggregate(total=Sum('uses'))['total'] or 0,
+              'available':items.filter(management_status='available').count()}
+    query = request.GET.get('q', '')[:100].strip()
+    status = request.GET.get('status', '')
+    kind = request.GET.get('kind', '')
+    if query:
+        items = items.filter(Q(label__icontains=query) | Q(code_hint__icontains=query))
+    if status in ('available','used','expired','disabled'):
+        items = items.filter(management_status=status)
+    else: status = ''
+    if kind in Invitation.Kind.values:
+        items = items.filter(kind=kind)
+    else: kind = ''
+    page = Paginator(items.order_by('-created_at','-pk'), 20).get_page(request.GET.get('page'))
+    filters = request.GET.copy(); filters.pop('page', None)
     return render(request, 'community/invites.html', {'form': form, 'code': code,
-        'invitations': items[:100], 'is_invite_admin': is_admin(request.user),
+        'invitations': page, 'page':page, 'totals':totals, 'query':query, 'status':status, 'kind':kind,
+        'filter_query':filters.urlencode(), 'is_invite_admin': is_admin(request.user),
         'invite_link': request.build_absolute_uri('/invite/')+'#code='+code if code else None,
         'member_issuers_enabled': InviteSettings.objects.filter(pk=1, member_issuers_enabled=True).exists()})
+
+
+@login_required
+@never_cache
+@require_http_methods(['GET','POST'])
+def detail(request, invitation_id):
+    invitation = get_object_or_404(managed_invitations(request.user), pk=invitation_id)
+    form = ManageForm(request.POST if request.method == 'POST' else None, initial={
+        'label':invitation.label, 'max_uses':invitation.max_uses,
+        'redeem_before':invitation.redeem_before, 'enabled':invitation.enabled})
+    if request.method == 'POST' and form.is_valid():
+        with transaction.atomic():
+            # Serializes limit edits with both redemption and revocation.
+            locked = Invitation.objects.select_for_update().get(pk=invitation.pk)
+            if form.cleaned_data['max_uses'] < locked.uses:
+                form.add_error('max_uses', f'At least {locked.uses} places have already been redeemed.')
+            deadline = form.cleaned_data['redeem_before']
+            if form.cleaned_data['enabled'] and deadline and deadline <= timezone.now():
+                form.add_error('redeem_before', 'Choose a future deadline, clear it, or disable new redemptions.')
+            if not form.errors:
+                for field, value in form.cleaned_data.items():
+                    setattr(locked, field, value)
+                locked.save(update_fields=list(form.cleaned_data))
+                messages.success(request, 'Invite settings saved. Existing grants are unchanged.')
+                return redirect('invite-detail', invitation_id=invitation.pk)
+    history = invitation.redemptions.select_related('user','user__author_profile').order_by('-redeemed_at','-pk')
+    page = Paginator(history, 25).get_page(request.GET.get('page'))
+    return render(request, 'community/invite_detail.html', {'invitation':invitation, 'form':form,
+        'remaining':max(0,invitation.max_uses-invitation.uses),
+        'percent':round(100*invitation.uses/invitation.max_uses), 'page':page,
+        'now':timezone.now(), 'is_invite_admin':is_admin(request.user)})
 
 
 @login_required

@@ -122,7 +122,8 @@ def account(request):
         messages.success(request, 'Your author profile has been updated.')
         return redirect('account')
     return render(request, 'community/account.html', {'form': form, 'profile': profile,
-        'state': membership_state(request.user), 'posts': profile.publications.all()})
+        'state': membership_state(request.user), 'posts': profile.publications.all(),
+        'can_issue_invites': invites.can_issue(request.user)})
 
 
 def membership_context(user):

@@ -11,6 +11,7 @@ urlpatterns = [
     path('account/merge/cancel/', merge_views.cancel, name='account-merge-cancel'),
     path('invite/', invite_views.landing, name='invite-landing'),
     path('account/invites/', invite_views.dashboard, name='invites'),
+    path('account/invites/<uuid:invitation_id>/', invite_views.detail, name='invite-detail'),
     path('account/invites/settings/', invite_views.settings, name='invite-settings'),
     path('account/invites/<uuid:invitation_id>/revoke/', invite_views.revoke, name='invite-revoke'),
     path('account/invites/redeem/', invite_views.redeem, name='invite-redeem'),

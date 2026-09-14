@@ -1,0 +1,22 @@
+{% extends 'base.html' %}{% block title %}{{ invitation.label }} · Invite management{% endblock %}{% block content %}
+<a class="back" href="{% url 'invites' %}">← Manage invite codes</a>
+<p class="eyebrow">INVITE PROGRESS</p><h1>{{ invitation.label }}</h1>
+<p>{{ invitation.get_kind_display }} · <code>{{ invitation.code_hint }}…</code> · <strong>{{ invitation.management_status|title }}</strong></p>
+<div class="two-column"><section class="paper"><h2>Redemption progress</h2>
+<p><strong>{{ invitation.uses }} / {{ invitation.max_uses }}</strong> places redeemed · {{ remaining }} unused</p>
+<meter min="0" max="100" value="{{ percent }}" aria-label="Redemption progress">{{ percent }}%</meter>
+<p>Created {{ invitation.created_at|date:'M j, Y, H:i' }} UTC{% if is_invite_admin %} by {{ invitation.created_by.username }}{% endif %}.</p>
+<p>{% if invitation.redeem_before %}Redemption deadline: {{ invitation.redeem_before|date:'M j, Y, H:i' }} UTC.{% else %}No redemption deadline.{% endif %}</p>
+<p class="small">Unused places can only be claimed while the code is available. Progress records completed redemptions; sending, opening a link, and unfinished signups are not tracked.</p>
+<details><summary>Need the full code or link?</summary><p>For security, full codes and links are shown only when created. Keep your saved copy. If it is lost, create a replacement code and disable this one if it should no longer be used.</p></details>
+</section><section class="paper"><h2>Manage this code</h2>
+<p>The access-pass type stays fixed. Changes below affect future redemptions; existing grants remain intact.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button>Save code settings</button></form>
+</section></div>
+<section class="paper"><h2>Redemption history</h2><p>Who claimed this code, when they claimed it, and the access granted at that time. Later passes or paid memberships may extend access beyond this record.</p>
+{% for redemption in page %}<article class="paper"><h3>{% if is_invite_admin %}{{ redemption.user.username }}{% else %}{{ redemption.user.author_profile.pen_name|default:'Invited reader' }}{% endif %}</h3>
+<p>Redeemed {{ redemption.redeemed_at|date:'M j, Y, H:i' }} UTC</p>
+<p>{% if redemption.lifetime %}<strong>Lifetime grant</strong>{% else %}Granted through {{ redemption.granted_until|date:'M j, Y, H:i' }} UTC · {% if redemption.granted_until > now %}<strong>Grant window active</strong>{% else %}Grant window ended{% endif %}{% endif %}</p>
+</article>{% empty %}<p>No redemptions yet. Share the saved invite link to get started.</p>{% endfor %}
+{% if page.has_other_pages %}<nav aria-label="Redemption history pages">{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">← Previous</a>{% endif %} Page {{ page.number }} of {{ page.paginator.num_pages }} {% if page.has_next %}<a href="?page={{ page.next_page_number }}">Next →</a>{% endif %}</nav>{% endif %}
+</section>{% endblock %}
