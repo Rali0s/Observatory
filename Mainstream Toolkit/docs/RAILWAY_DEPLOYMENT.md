@@ -52,3 +52,15 @@ The rename to `observate.up.railway.app` left the old hostname in Django's allow
 The updated application settings also admit the exact `RAILWAY_PUBLIC_DOMAIN` and its HTTPS CSRF origin, so another Railway-generated domain rename does not require hard-coded host updates. No wildcard host or CSRF origin is used. For custom domains, set allowed hosts and origins explicitly. `PUBLIC_BASE_URL` defaults to the Railway-generated domain unless explicitly configured.
 
 New integration configuration and limits are in [wallet, payments, and marketplace](WALLET_PAYMENTS_MARKETPLACE.md). Preserve disabled payment/trading flags until those prerequisites are met. Both services need the new application version for reconciliation.
+
+## Application update deployed — 2026-09-14
+
+Deployed code commit `e278e14` from the local `feature/wallet-payments-discovery` branch using clean Git archives. The branch has not been pushed to GitHub or merged into `main`.
+
+- Web deployment: `fb430fae-0902-4142-bb6c-0f60db869609` — SUCCESS. Migrations 0009 and 0010 applied successfully.
+- Worker deployment: `5816eba1-99e2-4704-80d3-e6dce1279518` — SUCCESS. Verified its Bitcoin block synchronization log.
+- HTTPS smoke checks passed for `/health/`, `/accounts/login/`, `/authors/`, `/ordinals/`, and the hashed Xverse authentication bundle.
+- Validation: 89 Django tests passed against PostgreSQL, including two concurrency tests; 13 frontend tests passed; Django checks, migration consistency, and frontend dependency audit passed. SQLite validation passed with the PostgreSQL-only concurrency tests skipped.
+- Stripe credentials and the ordinal index are absent. Card collection and native ordinal trading remain disabled. No real wallet login, charge, or Bitcoin trade was performed during deployment.
+
+Local development server and membership worker were started separately with the ignored local SQLite database. Restart with `make run` and `make worker` from the repository root.
