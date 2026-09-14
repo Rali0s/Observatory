@@ -139,3 +139,7 @@ Code commit `185b846` is live on web (`cccd6b6f-91cf-4611-9d00-f07e2b6c34f3`) an
 - Production health and login returned 200; anonymous studio access redirected to login. Local migration and restart succeeded. No production manuscript was created or rescored for verification, and no manuscript was sent to an external AI service.
 
 See [darkness scale, method, and limitations](CREEPYPASTA_DARKNESS.md).
+
+## Copyright footer deployed — 2026-09-14
+
+Code commit `011a4eb` is live on web (`797ba7a4-4d6e-4708-a1e8-f8b261afed7b`, SUCCESS). The shared footer now reads “Made for close reading. Your judgment leads the revision. | A Premise LLC Venture © 2026-2027”. Verified the exact text in local and production HTTP responses. This template-only change requires no migration or worker deployment.
