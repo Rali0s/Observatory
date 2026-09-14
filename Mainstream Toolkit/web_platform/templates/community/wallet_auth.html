@@ -1,0 +1,6 @@
+{% load static %}
+<form id="xverse-auth" data-challenge-url="{% url 'wallet-challenge' %}" data-verify-url="{% url 'wallet-authenticate' %}">
+{% csrf_token %}<button type="submit">{% if user.is_authenticated %}Link Xverse for sign-in{% else %}Continue with Xverse{% endif %}</button>
+</form>
+<p id="xverse-auth-status" role="status" aria-live="polite">Sign a one-time message with your payment wallet. {% if not user.is_authenticated %}New wallets create a free account. To link an existing account, sign in with your password first.{% endif %}</p>
+<script src="{% static 'xverse-auth.js' %}" defer></script>

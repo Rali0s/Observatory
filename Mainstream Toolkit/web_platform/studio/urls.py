@@ -1,8 +1,22 @@
 from django.urls import path
 from .voting import vote
-from . import ordinal_views, achievement_views
+from . import ordinal_views, achievement_views, wallet_auth, stripe_views, discovery, market_views
 from . import views, community, story_views, bitcoin_views
 urlpatterns = [
+    path('ordinals/<uuid:edition_id>/market/', market_views.edition, name='market-edition'),
+    path('ordinals/<uuid:edition_id>/listing/', market_views.listing_action, name='market-listing'),
+    path('ordinals/listings/<uuid:listing_id>/buy/', market_views.purchase, name='market-purchase'),
+    path('account/trades/<uuid:trade_id>/', market_views.trade, name='market-trade'),
+    path('account/trades/<uuid:trade_id>/action/', market_views.trade_action, name='market-trade-action'),
+    path('account/collection/', market_views.collection, name='collection'),
+    path('account/collection/refresh/', market_views.refresh_collection, name='collection-refresh'),
+    path('authors/', discovery.authors, name='authors'),
+    path('ordinals/', discovery.ordinals, name='ordinal-directory'),
+    path('account/stripe/checkout/', stripe_views.checkout, name='stripe-checkout'),
+    path('account/stripe/return/<uuid:order_id>/', stripe_views.returned, name='stripe-return'),
+    path('webhooks/stripe/', stripe_views.webhook, name='stripe-webhook'),
+    path('accounts/xverse/challenge/', wallet_auth.challenge, name='wallet-challenge'),
+    path('accounts/xverse/verify/', wallet_auth.authenticate, name='wallet-authenticate'),
     path('publish/ordinal/',ordinal_views.ordinal_publish,name='ordinal-publish'),
     path('account/achievements/',achievement_views.achievements,name='achievements'),
     path('read/<uuid:publication_id>/ordinal/',ordinal_views.ordinal,name='ordinal'),

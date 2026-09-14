@@ -62,6 +62,22 @@ class AuthorProfile(models.Model):
     bio = models.TextField(max_length=1000, blank=True)
 
 
+class WalletIdentity(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wallet_identities')
+    address = models.CharField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class WalletChallenge(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    address = models.CharField(max_length=100)
+    message = models.TextField()
+    session_hash = models.CharField(max_length=64)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    expires_at = models.DateTimeField()
+    consumed_at = models.DateTimeField(null=True)
+
+
 class PublishingMembership(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='publishing_membership')
     expires_at_block = models.PositiveBigIntegerField()
@@ -257,3 +273,43 @@ class ProfileUnlock(models.Model):
     badge = models.CharField(max_length=32, blank=True)
     show_scene = models.BooleanField(default=False)
     scene = models.PositiveSmallIntegerField(default=0)
+
+
+class OrdinalListing(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    edition = models.ForeignKey(OrdinalEdition, on_delete=models.PROTECT, related_name='listings')
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    seller_address = models.CharField(max_length=100)
+    payout_address = models.CharField(max_length=100)
+    price_sats = models.PositiveBigIntegerField()
+    outpoint = models.CharField(max_length=80)
+    postage_sats = models.PositiveBigIntegerField()
+    unsigned_psbt = models.TextField()
+    signed_psbt = models.TextField(blank=True)
+    status = models.CharField(max_length=12, default='draft', choices=[('draft', 'Awaiting signature'), ('active', 'For sale'), ('cancelled', 'Delisted'), ('sold', 'Sold'), ('stale', 'Ownership changed')])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['edition'], condition=models.Q(status__in=['draft', 'active']), name='one_open_ordinal_listing')]
+
+
+class OrdinalTrade(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    listing = models.ForeignKey(OrdinalListing, on_delete=models.PROTECT, related_name='trades')
+    buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    receive_address = models.CharField(max_length=100)
+    payment_address = models.CharField(max_length=100)
+    unsigned_psbt = models.TextField()
+    raw_transaction = models.TextField(blank=True)
+    txid = models.CharField(max_length=64, blank=True)
+    fee_sats = models.PositiveBigIntegerField()
+    status = models.CharField(max_length=16, default='prepared', choices=[('prepared', 'Review in wallet'), ('broadcasting', 'Broadcast pending'), ('broadcast', 'Awaiting confirmations'), ('confirmed', 'Collected'), ('conflict', 'Inputs spent elsewhere')])
+    created_at = models.DateTimeField(auto_now_add=True)
+    confirmed_at = models.DateTimeField(null=True)
+
+
+class OrdinalHolding(models.Model):
+    edition = models.OneToOneField(OrdinalEdition, on_delete=models.CASCADE, related_name='holding')
+    address = models.CharField(max_length=100, db_index=True)
+    outpoint = models.CharField(max_length=80)
+    checked_at = models.DateTimeField()

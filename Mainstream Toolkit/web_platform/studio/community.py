@@ -1,5 +1,6 @@
 import hashlib
 from .voting import with_votes
+from . import stripe_payments
 from .achievements import public_unlock, progress
 from .storage import budget
 from .direct_payments import ready as direct_ready
@@ -120,7 +121,7 @@ def account(request):
 
 
 def membership_context(user):
-    return {'direct_ready': direct_ready(), 'state': membership_state(user), 'payments_ready': payments_ready(),
+    return {'stripe_ready': stripe_payments.ready(), 'direct_ready': direct_ready(), 'state': membership_state(user), 'payments_ready': payments_ready(),
             'orders': PaymentOrder.objects.filter(user=user).order_by('-created_at')[:10]}
 
 
@@ -236,6 +237,12 @@ def check_payment(request, order_id):
         return redirect('bitcoin-order', order_id=order.pk)
     if not cache.add('check-payment:'+str(order.id), True, 30):
         messages.info(request, 'Please wait a moment before checking again.')
+    elif order.provider == 'stripe':
+        try:
+            stripe_payments.reconcile(order)
+            messages.info(request, 'Card payment status checked.')
+        except Exception:
+            messages.info(request, 'Verification is pending. Your order is retained.')
     elif payments_ready():
         try:
             reconcile_order(order)

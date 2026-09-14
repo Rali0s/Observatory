@@ -1,3 +1,5 @@
+> Current setup and implemented features: see the [repository README](../../README.md) and [wallet, card payments, and native marketplace guide](../docs/WALLET_PAYMENTS_MARKETPLACE.md). The historical notes below describe earlier milestones.
+
 > New: [Story Studio, restored writing tools, storage quota and direct Xverse payments](../docs/STORY_STUDIO_AND_DIRECT_BITCOIN.md). This update supersedes earlier feature boundaries below.
 
 # The Observatory — Django foundation

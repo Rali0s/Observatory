@@ -35,7 +35,7 @@ Sources: [Railway Django](https://docs.railway.com/guides/django), [configuratio
 
 Private source: https://github.com/Rali0s/Observatory (main).
 Railway project: https://railway.com/project/8a863a75-2f59-4781-93e7-bfd21706319b
-Web domain: https://web-production-eb102.up.railway.app
+Web domain: https://observate.up.railway.app
 
 Services: web, worker, Postgres and Redis in the production environment. Runtime secrets are generated and stored in Railway variables; database/cache variables use service references. Local databases and accounts are excluded.
 
@@ -44,3 +44,11 @@ This deployment uses CLI uploads from a clean `git archive`, not automatic GitHu
 The current Railway API no longer accepts DOCKERFILE as its Builder enum. Set the Dockerfile path explicitly; do not depend on the old builder value. Config-as-code is being deprecated by Railway; migrate these deployment settings to its current infrastructure-as-code format before the announced December 2026 cutoff.
 
 Payments, external AI and ordinal minting remain off. Production admin access must be established separately from the local 3xc account. Configure backups and complete the operational checks above before inviting paying members.
+
+## Domain rename repair — 2026-09-14
+
+The rename to `observate.up.railway.app` left the old hostname in Django's allowed hosts and CSRF origins. Requests reached Gunicorn but returned HTTP 400. Updated the web service's `DJANGO_ALLOWED_HOSTS` and `DJANGO_CSRF_TRUSTED_ORIGINS`, retaining the previous host and Railway healthcheck host. Verified HTTP 200 at the new origin.
+
+The updated application settings also admit the exact `RAILWAY_PUBLIC_DOMAIN` and its HTTPS CSRF origin, so another Railway-generated domain rename does not require hard-coded host updates. No wildcard host or CSRF origin is used. For custom domains, set allowed hosts and origins explicitly. `PUBLIC_BASE_URL` defaults to the Railway-generated domain unless explicitly configured.
+
+New integration configuration and limits are in [wallet, payments, and marketplace](WALLET_PAYMENTS_MARKETPLACE.md). Preserve disabled payment/trading flags until those prerequisites are met. Both services need the new application version for reconciliation.

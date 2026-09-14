@@ -2,8 +2,10 @@
 import os
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env', override=False)
 DEBUG = os.getenv('DJANGO_DEBUG', '1') == '1'
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
 if not SECRET_KEY:
@@ -12,6 +14,11 @@ if not SECRET_KEY:
     SECRET_KEY = 'local-development-only-observatory-key-not-for-hosting'
 ALLOWED_HOSTS = [s.strip() for s in os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if s.strip()]
 CSRF_TRUSTED_ORIGINS = [s.strip() for s in os.getenv('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',') if s.strip()]
+# Railway updates this exact hostname when a generated domain is renamed.
+railway_domain = os.getenv('RAILWAY_PUBLIC_DOMAIN', '').strip()
+if railway_domain and all(c.isalnum() or c in '.-' for c in railway_domain):
+    ALLOWED_HOSTS.append(railway_domain)
+    CSRF_TRUSTED_ORIGINS.append('https://' + railway_domain)
 INSTALLED_APPS = [
     'django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes',
     'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles',
@@ -96,3 +103,13 @@ DIRECT_BITCOIN_ENABLED = os.getenv('DIRECT_BITCOIN_ENABLED', '0') == '1'
 
 # An operator-controlled mainnet ord server, with JSON API and sat indexing enabled.
 ORDINAL_INDEX_URL = os.getenv('ORDINAL_INDEX_URL', '')
+
+STRIPE_ENABLED = os.getenv('STRIPE_ENABLED', '0') == '1'
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+PUBLIC_BASE_URL = os.getenv('PUBLIC_BASE_URL', 'https://' + railway_domain if railway_domain else 'http://127.0.0.1:8000').rstrip('/')
+
+# Enable only after staging wallet/transaction verification with a trusted ord index.
+ORDINAL_TRADING_ENABLED = os.getenv('ORDINAL_TRADING_ENABLED', '0') == '1'
+ORDINAL_MAX_PRICE_SATS = 100000000
+ORDINAL_MAX_FEE_SATS = 100000
