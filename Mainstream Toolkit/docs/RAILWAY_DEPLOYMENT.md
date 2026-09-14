@@ -30,3 +30,17 @@ Run migrations, collectstatic, checks and tests on staging PostgreSQL. Verify co
 Analysis is synchronous with a 20,000-word cap; add a task queue before increasing it. Railway and BTCPay hosting costs are separate from author prices. Select resource plans in the operator account. This remains an alpha.
 
 Sources: [Railway Django](https://docs.railway.com/guides/django), [configuration](https://docs.railway.com/config-as-code/reference), [healthchecks](https://docs.railway.com/deployments/healthchecks), [BTCPay](https://docs.btcpayserver.org/Development/ecommerce-integration-guide/), [Esplora API](https://github.com/Blockstream/esplora/blob/master/API.md).
+
+## Deployment created 2026-09-14
+
+Private source: https://github.com/Rali0s/Observatory (main).
+Railway project: https://railway.com/project/8a863a75-2f59-4781-93e7-bfd21706319b
+Web domain: https://web-production-eb102.up.railway.app
+
+Services: web, worker, Postgres and Redis in the production environment. Runtime secrets are generated and stored in Railway variables; database/cache variables use service references. Local databases and accounts are excluded.
+
+This deployment uses CLI uploads from a clean `git archive`, not automatic GitHub deployments. Web archive root is Mainstream Toolkit. Worker uses the same source with railway.worker.toml copied to railway.toml in a separate deployment archive. RAILWAY_DOCKERFILE_PATH=web_platform/Dockerfile is configured on both services. Service settings explicitly set the web migration/healthcheck and worker start command.
+
+The current Railway API no longer accepts DOCKERFILE as its Builder enum. Set the Dockerfile path explicitly; do not depend on the old builder value. Config-as-code is being deprecated by Railway; migrate these deployment settings to its current infrastructure-as-code format before the announced December 2026 cutoff.
+
+Payments, external AI and ordinal minting remain off. Production admin access must be established separately from the local 3xc account. Configure backups and complete the operational checks above before inviting paying members.
