@@ -27,7 +27,7 @@ def library(request):
             # Serializes project quota checks for the same owner on PostgreSQL.
             get_user_model().objects.select_for_update().get(pk=request.user.pk)
             grant = require_access(request.user)
-            if request.user.novel_projects.count() >= grant.max_projects:
+            if grant.max_projects is not None and request.user.novel_projects.count() >= grant.max_projects:
                 form.add_error(None, 'Your pilot project allowance is full.')
             elif form.is_valid():
                 project = form.save(commit=False)

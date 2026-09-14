@@ -29,6 +29,8 @@ def create_checkout(user):
     with transaction.atomic():
         get_user_model().objects.select_for_update().get(pk=user.pk)
         state = membership_state(user)
+        if state['complimentary']:
+            raise ValueError('Your complimentary access is active; no payment is needed.')
         if state['height'] is None:
             raise ValueError('Checkout awaits fresh block verification.')
         order = PaymentOrder.objects.filter(user=user, provider='stripe', applied_at_block__isnull=True).exclude(

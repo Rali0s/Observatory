@@ -2,7 +2,8 @@
 from decimal import Decimal
 from django.conf import settings
 from django.utils import timezone
-from .models import ChainTip, PublishingMembership
+from .access import is_admin
+from .models import ChainTip, PublishingMembership, ComplimentaryAccess
 
 TERM = 4320
 RENEWAL_WINDOW = 4320
@@ -23,7 +24,15 @@ def membership_state(user):
     height = chain_height()
     result = {'height': height, 'expires': member.expires_at_block if member else None,
               'price': PRICE, 'redemption_fee': REDEMPTION, 'total': PRICE,
-              'remaining': None, 'deadline': None, 'days': None, 'can_publish': False}
+              'remaining': None, 'deadline': None, 'days': None, 'can_publish': False, 'complimentary': False}
+    access = ComplimentaryAccess.objects.filter(user=user).first()
+    if is_admin(user):
+        result.update(stage='admin', label='Unlimited admin access', can_publish=True, complimentary=True, total=0, action='Publish')
+        return result
+    if access and (access.lifetime or (access.expires_at and access.expires_at > timezone.now())):
+        result.update(stage='lifetime' if access.lifetime else 'invite', label='Lifetime invite access' if access.lifetime else 'Free invite access',
+            can_publish=True, complimentary=True, total=0, access_expires_at=access.expires_at, action='Publish')
+        return result
     if member is None:
         result.update(stage='free', label='Free account', action='Start publishing membership')
     elif height is None:

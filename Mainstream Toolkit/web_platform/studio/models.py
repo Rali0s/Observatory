@@ -4,6 +4,58 @@ from django.db import models
 from .taxonomy import CHANNELS
 
 
+class InviteSettings(models.Model):
+    id = models.PositiveSmallIntegerField(primary_key=True, default=1, editable=False)
+    member_issuers_enabled = models.BooleanField(default=False,
+        help_text='Allow people with the Can issue invitations permission to create codes. Admins always can.')
+
+    class Meta:
+        verbose_name_plural = 'Invite settings'
+        constraints = [models.CheckConstraint(condition=models.Q(id=1), name='invite_settings_singleton')]
+
+
+class Invitation(models.Model):
+    class Kind(models.TextChoices):
+        THREE_MONTHS = 'three_months', 'Free three months'
+        LIFETIME = 'lifetime', 'Lifetime access'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code_hash = models.CharField(max_length=64, unique=True, editable=False)
+    code_hint = models.CharField(max_length=12, editable=False)
+    label = models.CharField(max_length=100)
+    kind = models.CharField(max_length=20, choices=Kind.choices)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    max_uses = models.PositiveIntegerField(default=1)
+    uses = models.PositiveIntegerField(default=0, editable=False)
+    enabled = models.BooleanField(default=True)
+    redeem_before = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        permissions = [('issue_invitations', 'Can issue invitations')]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(max_uses__gte=1), name='invite_positive_uses'),
+            models.CheckConstraint(condition=models.Q(uses__lte=models.F('max_uses')), name='invite_capacity'),
+        ]
+
+
+class ComplimentaryAccess(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    lifetime = models.BooleanField(default=False)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+
+class InviteRedemption(models.Model):
+    invitation = models.ForeignKey(Invitation, on_delete=models.PROTECT, related_name='redemptions')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    redeemed_at = models.DateTimeField(auto_now_add=True)
+    granted_until = models.DateTimeField(null=True, blank=True)
+    lifetime = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['invitation', 'user'], name='invite_once_per_user')]
+
+
 class Project(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='novel_projects')

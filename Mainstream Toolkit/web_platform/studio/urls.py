@@ -1,8 +1,12 @@
 from django.urls import path
 from .voting import vote
 from . import ordinal_views, achievement_views, wallet_auth, stripe_views, discovery, market_views
-from . import views, community, story_views, bitcoin_views
+from . import views, community, story_views, bitcoin_views, invite_views
 urlpatterns = [
+    path('account/invites/', invite_views.dashboard, name='invites'),
+    path('account/invites/settings/', invite_views.settings, name='invite-settings'),
+    path('account/invites/<uuid:invitation_id>/revoke/', invite_views.revoke, name='invite-revoke'),
+    path('account/invites/redeem/', invite_views.redeem, name='invite-redeem'),
     path('ordinals/<uuid:edition_id>/market/', market_views.edition, name='market-edition'),
     path('ordinals/<uuid:edition_id>/listing/', market_views.listing_action, name='market-listing'),
     path('ordinals/listings/<uuid:listing_id>/buy/', market_views.purchase, name='market-purchase'),

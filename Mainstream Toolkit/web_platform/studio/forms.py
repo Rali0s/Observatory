@@ -81,7 +81,7 @@ class RevisionForm(forms.Form):
                 raise forms.ValidationError('This file is not UTF-8 text.')
         if not manuscript.strip() or not core.segment(core.split_chapters(manuscript)):
             raise forms.ValidationError('Add manuscript prose before saving.')
-        if core.word_count(manuscript) > self.max_words:
+        if self.max_words is not None and core.word_count(manuscript) > self.max_words:
             raise forms.ValidationError(f'This pilot supports up to {self.max_words:,} words per revision.')
         cleaned['manuscript'] = manuscript
         return cleaned

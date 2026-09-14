@@ -23,6 +23,11 @@ Create an account through `/join/` or Xverse sign-in. An existing account can li
 
 ## Features and setup
 
+- **Admin access and invites:** unlimited admin publishing and plan allowances; admin-issued three-month and lifetime passes, with optional selected-member issuing permissions.
+- **Reading Room sharing:** X, Facebook, Blogger, LinkedIn, copy link, and device sharing on public readings.
+
+See [invite operation and domain shortlist](Mainstream%20Toolkit/docs/INVITES_AND_SHARING.md).
+
 - **Xverse authentication:** server-generated, session-bound, five-minute, single-use signature challenges. Payment-address ECDSA sign-in and Taproot BIP322 ownership proofs for collection addresses. New wallet sign-ins create passwordless accounts; linking an existing account requires signing in first.
 - **Membership cards:** Stripe hosted Checkout for $18 per 4,320 confirmed blocks, or $45 for redemption plus renewal. One-time payments, no automatic renewal. Signed webhooks and worker reconciliation grant each order once. Configure test credentials and webhook delivery before enabling.
 - **Public profiles and discovery:** `/authors/` searches pen names and biographies; profiles show public publications and ordinal editions, with follow/unfollow. `/ordinals/` searches verified public editions and filters sale listings.

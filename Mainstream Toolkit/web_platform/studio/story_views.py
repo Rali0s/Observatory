@@ -125,7 +125,8 @@ def chapter_snapshot(request,project_id):
     from .access import require_access, word_limit
     project=owned(request,project_id)
     text='\n\n'.join(f'# Chapter {i+1}: {c.title}\n\n{c.markdown}' for i,c in enumerate(project.draft_chapters.all()))
-    if core.word_count(text)>word_limit(require_access(request.user)): raise ValueError('Analyze up to 20,000 words at once. Your longer editable manuscript is retained.')
+    limit = word_limit(require_access(request.user))
+    if limit is not None and core.word_count(text)>limit: raise ValueError('Analyze up to 20,000 words at once. Your longer editable manuscript is retained.')
     profile=request.POST.get('profile','general')
     if profile not in ('general','river'): raise ValueError('Choose a valid profile.')
     report=analyze(text,profile)

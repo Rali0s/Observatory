@@ -6,6 +6,7 @@ from django.shortcuts import redirect
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from .access import is_admin
 from .models import Project, Revision, RevisionNote, Publication, StoryWorkspace, StoryEntry, DraftChapter, ClueAnnotation, SemanticReading, OrdinalEdition
 
 
@@ -35,6 +36,8 @@ def usage(user):
 
 def storage_state(user):
     used = usage(user)
+    if is_admin(user):
+        return {'used': used, 'limit': None, 'percent': 0, 'unlimited': True}
     limit = settings.STORAGE_QUOTA_BYTES
     return {'used': used, 'limit': limit, 'percent': min(100, round(100*used/limit, 1))}
 
@@ -46,7 +49,7 @@ def save_content(user, operation):
         before = usage(user)
         result = operation()
         after = usage(user)
-        if after > settings.STORAGE_QUOTA_BYTES and after > before:
+        if not is_admin(user) and after > settings.STORAGE_QUOTA_BYTES and after > before:
             raise ValueError('Your storage allowance is full. Export and remove an older draft or attachment before saving more.')
         return result
 

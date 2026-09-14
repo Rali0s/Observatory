@@ -1,6 +1,6 @@
 import hashlib
 from .voting import with_votes
-from . import stripe_payments
+from . import stripe_payments, invites
 from .achievements import public_unlock, progress
 from .storage import budget
 from .direct_payments import ready as direct_ready
@@ -122,6 +122,7 @@ def account(request):
 
 def membership_context(user):
     return {'stripe_ready': stripe_payments.ready(), 'direct_ready': direct_ready(), 'state': membership_state(user), 'payments_ready': payments_ready(),
+            'can_issue_invites': invites.can_issue(user),
             'orders': PaymentOrder.objects.filter(user=user).order_by('-created_at')[:10]}
 
 

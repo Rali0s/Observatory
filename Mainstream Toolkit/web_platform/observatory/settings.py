@@ -2,10 +2,14 @@
 import os
 from pathlib import Path
 from django.core.exceptions import ImproperlyConfigured
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env', override=False)
+_stripe_file = dotenv_values(BASE_DIR.parent / '.env.stripe')
+
+def stripe_setting(name, alias=None):
+    return os.getenv(name) or (os.getenv(alias) if alias else None) or _stripe_file.get(name) or (_stripe_file.get(alias) if alias else None) or ''
 DEBUG = os.getenv('DJANGO_DEBUG', '1') == '1'
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
 if not SECRET_KEY:
@@ -105,8 +109,12 @@ DIRECT_BITCOIN_ENABLED = os.getenv('DIRECT_BITCOIN_ENABLED', '0') == '1'
 ORDINAL_INDEX_URL = os.getenv('ORDINAL_INDEX_URL', '')
 
 STRIPE_ENABLED = os.getenv('STRIPE_ENABLED', '0') == '1'
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY', '')
-STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET', '')
+STRIPE_SECRET_KEY = stripe_setting('STRIPE_SECRET_KEY', 'STRIPE_SECRET_API_KEY')
+STRIPE_WEBHOOK_SECRET = stripe_setting('STRIPE_WEBHOOK_SECRET')
+STRIPE_WRITER_PRODUCT_ID = stripe_setting('STRIPE_WRITER_PRODUCT_ID', 'PRODUCT_ID_001')
+STRIPE_WRITER_PRICE_ID = stripe_setting('STRIPE_WRITER_PRICE_ID', 'PRODUCT_PRICE_ID_001')
+STRIPE_UNLOCK_PRODUCT_ID = stripe_setting('STRIPE_UNLOCK_PRODUCT_ID', 'PRODUCT_ID_002')
+STRIPE_UNLOCK_PRICE_ID = stripe_setting('STRIPE_UNLOCK_PRICE_ID', 'PRODUCT_PRICE_ID_002')
 PUBLIC_BASE_URL = os.getenv('PUBLIC_BASE_URL', 'https://' + railway_domain if railway_domain else 'http://127.0.0.1:8000').rstrip('/')
 
 # Enable only after staging wallet/transaction verification with a trusted ord index.

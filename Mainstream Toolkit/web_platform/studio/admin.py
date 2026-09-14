@@ -59,3 +59,17 @@ from .models import WalletIdentity, OrdinalListing, OrdinalTrade, OrdinalHolding
 @admin.register(WalletIdentity, OrdinalListing, OrdinalTrade, OrdinalHolding)
 class ReadOnlyWalletMarketAdmin(ReadOnlyBillingAdmin):
     pass
+
+from .models import Invitation, InviteSettings, InviteRedemption, ComplimentaryAccess
+
+@admin.register(Invitation, InviteRedemption, ComplimentaryAccess)
+class ReadOnlyInviteAdmin(ReadOnlyBillingAdmin):
+    pass
+
+@admin.register(InviteSettings)
+class InviteSettingsAdmin(admin.ModelAdmin):
+    list_display = ['member_issuers_enabled']
+    def has_add_permission(self, request):
+        return not InviteSettings.objects.exists()
+    def has_delete_permission(self, request, obj=None):
+        return False

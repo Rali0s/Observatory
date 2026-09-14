@@ -55,3 +55,23 @@ class ConcurrencyTests(TransactionTestCase):
         results = self.run_concurrently(submit)
         self.assertEqual(sorted(results), [200, 400])
         self.assertEqual(WalletIdentity.objects.count(), 1)
+
+    def test_concurrent_invite_last_use_cannot_be_oversubscribed(self):
+        from .invites import issue, redeem
+        from .models import InviteRedemption
+        admin = get_user_model().objects.create_user('inviter', is_staff=True)
+        users = [get_user_model().objects.create_user('recipient1'), get_user_model().objects.create_user('recipient2')]
+        invitation, code = issue(admin, label='Last pass', kind='lifetime')
+        from queue import Queue
+        recipients = Queue()
+        for user in users: recipients.put(user)
+        def attempt():
+            try:
+                redeem(recipients.get_nowait(), code)
+                return 'accepted'
+            except ValueError:
+                return 'rejected'
+        self.assertEqual(sorted(self.run_concurrently(attempt)), ['accepted', 'rejected'])
+        invitation.refresh_from_db()
+        self.assertEqual(invitation.uses, 1)
+        self.assertEqual(InviteRedemption.objects.count(), 1)
