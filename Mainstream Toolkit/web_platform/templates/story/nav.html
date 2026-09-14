@@ -1,0 +1,3 @@
+<nav class="subnav" aria-label="Manuscript tools"><a href="{% url 'project' project.id %}">Revisions</a><a href="{% url 'chapters' project.id %}">Chapter workbench</a><a href="{% url 'story' project.id %}">Story Studio</a><a href="{% url 'edition' project.id %}">Book exports</a><a href="{% url 'export-project' project.id %}">Export story data</a></nav>
+
+{% include 'community/publish_actions.html' %}

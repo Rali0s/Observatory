@@ -1,0 +1,48 @@
+/* Shared spacing rhythm. Stacked cards get separation; grid children use gap. */
+:root {
+  --card-gap: 28px;
+  --section-gap: 40px;
+  --card-padding: 32px;
+}
+.paper { padding: var(--card-padding); }
+.paper > :first-child { margin-top: 0; }
+.paper > :last-child { margin-bottom: 0; }
+:where(main, .reading-column, .room-grid > section, .room-grid > aside,
+  .two-column > section:not(.paper), .two-column > aside:not(.paper)) > .paper + .paper {
+  margin-top: var(--card-gap);
+}
+.feed-post, .publication-row, .revision-link, .evidence {
+  margin-bottom: var(--card-gap);
+}
+.room-grid > aside > .paper { margin-bottom: var(--card-gap); }
+.library-grid, .achievement-grid, .two-column { gap: var(--card-gap); }
+.library-grid { grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr)); }
+.form-grid { grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); }
+.achievement-grid { margin-block: var(--section-gap); }
+.section-heading { margin: var(--section-gap) 0 20px; flex-wrap: wrap; }
+.paper + .two-column, .two-column + .paper, .two-column + .two-column {
+  margin-top: var(--section-gap);
+}
+.paper:not(.publication-row) > form + form { margin-top: 20px; }
+.paper > details + details { margin-top: 20px; }
+.paper > h3:not(:first-child) { margin-top: 28px; }
+.paper details > form { margin-top: 18px; }
+#story-board details { padding-block: 22px; }
+.subnav { row-gap: 16px; }
+.publish-actions { gap: 14px; margin-block: 20px 32px; }
+.journey-caption { padding-block: 20px; }
+input[type="checkbox"], input[type="radio"] {
+  width: auto;
+  margin-inline-end: 8px;
+  vertical-align: middle;
+}
+@media (max-width: 800px) {
+  :root { --card-gap: 22px; --section-gap: 32px; --card-padding: 24px; }
+  .room-grid { gap: var(--section-gap); }
+  .section-heading { align-items: flex-start; }
+}
+@media (max-width: 420px) {
+  :root { --card-padding: 20px; }
+  main { padding-inline: 16px; }
+  .publish-actions .download { white-space: normal; }
+}

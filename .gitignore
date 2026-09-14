@@ -1,0 +1,22 @@
+.DS_Store
+.venv/
+.env
+__pycache__/
+*.pyc
+.streamlit/secrets.toml
+output/
+tmp/
+*.sqlite3
+*.sqlite3-*
+staticfiles/
+node_modules/
+# Local writing and account data
+chapters/
+chapter_art/
+notes/
+projects/
+.env.*
+!.env.example
+*.pem
+*.key
+*.log

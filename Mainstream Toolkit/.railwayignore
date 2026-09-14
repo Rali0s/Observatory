@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+.env
+.streamlit/
+chapters/
+chapter_art/
+notes/
+projects/
+output/
+web_platform/.venv/
+web_platform/.env
+web_platform/db.sqlite3*
+web_platform/staticfiles/
+web_platform/**/__pycache__/
+
+**/node_modules/**

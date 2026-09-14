@@ -1,0 +1,1 @@
+<div class="publication-tags" aria-label="Publication categories"><a class="channel-tag" href="{% url 'feed' %}?channel={{ post.channel }}">{{ post.get_channel_display }}</a>{% for tag in post.tags.all %}<a href="{% url 'feed' %}?tag={{ tag.name|urlencode }}">#{{ tag.name }}</a>{% endfor %}</div>

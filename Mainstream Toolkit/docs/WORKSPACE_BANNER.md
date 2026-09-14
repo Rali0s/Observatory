@@ -1,0 +1,7 @@
+# Workspace banner
+
+Generated using the built-in image generation tool. Saved as `../web_platform/static/observatory-workspace-banner.png` and displayed below navigation, before YOUR WORKSPACE on the manuscript library page. Desktop preserves the 3:1 artwork; small screens use a centered 2:1 crop. Decorative image with empty alt text.
+
+## Generation prompt
+
+Create a polished website banner illustration for The Observatory, a literary writing and story-analysis platform. Very wide panoramic composition 3:1. A tranquil old observatory reading room opening onto a misty forest garden: on the right, a graceful domed observatory and tall arched window; across the lower foreground, an open manuscript, a fountain pen and a few loosely arranged paper sheets on a wooden writing desk. Fine botanical silhouettes and a subtle constellation of stars connect the literary and observatory themes. Elegant hand-etched editorial illustration with restrained watercolor washes, warm parchment beige #F4EEDF, deep forest green #254D3C, pale sage #E3E9DC and ivory #FFFCF5. Soft morning light, thoughtful and welcoming, sophisticated literary journal art, generous airy space through the middle. Compose the important elements within the central horizontal band so it crops gracefully into a shallow desktop banner. Edge-to-edge artwork, flat illustration, no frame, no visible text, no lettering, no words, no logos, no watermark. Not a UI mockup. A finished decorative hero banner.
