@@ -89,3 +89,16 @@ Code commit `954e581` is live on web (`17ad62d2-7081-40f7-a9fd-b0e85bcfbc38`) an
 - Production health and editor JavaScript/CSS returned HTTP 200; deployed asset hashes match the local build.
 
 See [writing editor behavior and implementation](WRITING_EDITOR.md). `observatory.cafe` was not resolving from the verification environment at the time of this release, so HTTPS asset checks used the existing Railway-generated domain.
+
+## Mobile reading deployed — 2026-09-14
+
+Code commit `f49f2d6` is live on web (`43735fd0-b7f2-4cd4-86b4-89c9a324cb72`) and worker (`17d97350-08f7-495e-911d-0675ef9ca07f`); both deployments succeeded. No database migration was needed.
+
+- Phone navigation focuses on reading, author discovery, invitations, and account access. Desktop tools display a notice directing readers to a computer.
+- Admin-created invites include shareable links. Signup and password/wallet sign-in preserve the pending code and return to a separate redemption confirmation.
+- Validation: 111 Django tests completed, with 108 passed and 3 PostgreSQL-only tests skipped on SQLite. All 17 frontend tests, Django checks, migration consistency, and diff whitespace checks passed.
+- A 390-pixel browser preview verified the reading layout. The workstation locked during further interactive checks; narrow-screen authentication and real mobile wallet behavior were not verified in a browser. Automated tests cover invite continuation and redemption.
+- Production `/`, `/health/`, `/invite/`, `/accounts/login/`, `/join/`, and `/authors/` returned HTTP 200. Mobile CSS/JavaScript hashes match the local build. Invite responses have no-store and no-referrer headers.
+- Local development was restarted with the new code. Deployment used clean Git archives; no local accounts, databases, or credentials were uploaded. Existing payment flags and domain settings were preserved.
+
+See [mobile reading and invite links](MOBILE_READING.md).
