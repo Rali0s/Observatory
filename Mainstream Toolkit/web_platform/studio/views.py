@@ -69,7 +69,7 @@ def revision(request, revision_id):
     revision = owned_revision(request, revision_id)
     report = revision.analysis
     signals = list(report['scores'])
-    signal = request.GET.get('signal', 'Hope')
+    signal = request.GET.get('signal', 'Darkness' if revision.profile == 'creepypasta' else 'Hope')
     if signal not in signals:
         signal = signals[0]
     baseline = None

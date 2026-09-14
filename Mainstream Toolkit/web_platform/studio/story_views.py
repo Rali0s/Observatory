@@ -126,7 +126,7 @@ def chapter_snapshot(request,project_id):
     limit = word_limit(require_access(request.user))
     if limit is not None and core.word_count(text)>limit: raise ValueError('Analyze up to 20,000 words at once. Your longer editable manuscript is retained.')
     profile=request.POST.get('profile','general')
-    if profile not in ('general','river'): raise ValueError('Choose a valid profile.')
+    if profile not in dict(Revision._meta.get_field('profile').choices): raise ValueError('Choose a valid profile.')
     report=analyze(text,profile)
     revision=Revision.objects.create(project=project,label='Chapter workspace snapshot',manuscript=text,profile=profile,
         fingerprint=fingerprint(text,profile),analysis=report,word_count=report['word_count'],engine_version=report['engine_version'])
@@ -189,7 +189,7 @@ def aids(request,revision_id):
     traces.sort(key=lambda row:(row['character'],row['position']))
     level=request.GET.get('level','Chapter')
     if level not in ('Chapter','Scene','Passage'): level='Chapter'
-    signal=request.GET.get('signal','Hope')
+    signal=request.GET.get('signal','Darkness' if revision.profile=='creepypasta' else 'Hope')
     if signal not in revision.analysis['scores']: signal=next(iter(revision.analysis['scores']))
     overlay=request.GET.get('overlay','')
     keys=[signal]+([overlay] if overlay in revision.analysis['scores'] and overlay!=signal else [])

@@ -1,0 +1,24 @@
+{% if revision.analysis.darkness %}
+<section class="paper" aria-labelledby="darkness-heading">
+  <p class="eyebrow">CREEPYPASTA · DARKNESS</p>
+  <h2 id="darkness-heading">{{ revision.analysis.darkness.level }}/5 · {{ revision.analysis.darkness.label }}</h2>
+  <p>{{ revision.analysis.darkness.description }}</p>
+  <meter min="0" max="5" value="{{ revision.analysis.darkness.level }}" aria-label="Estimated darkness: {{ revision.analysis.darkness.level }} out of 5">{{ revision.analysis.darkness.level }}/5</meter>
+  <p class="small muted">An English-language cue estimate, not a quality score, age rating, or prediction of how every reader will feel. Subtle horror, irony, and context may be missed. Higher is not a writing goal; gore is optional. Your analysis stays private.</p>
+  {% if revision.analysis.darkness.short_sample %}<p class="notice">Short sample: fewer than 100 words. Treat this rating as tentative and check it against a fuller scene.</p>{% endif %}
+  <details><summary>What shapes the darkness?</summary>
+    {% for axis in revision.analysis.darkness.axes %}<h3>{{ axis.name }} · {{ axis.level }}/5</h3><p>{{ axis.description }}</p><p class="small">Revision prompt: {{ axis.tip }}</p>{% endfor %}
+    <p>Choose a signal below to read the passages and cues behind its estimate.</p>
+  </details>
+  <details><summary>Chapter ratings & strongest passages</summary>
+    {% for chapter in revision.analysis.darkness.chapters %}<p>{{ chapter.label }} · {{ chapter.rating.level }}/5 · {{ chapter.rating.label }}</p>{% endfor %}
+    <h3>Strongest passages</h3>
+    {% for passage in revision.analysis.darkness.peaks %}<p>Passage {{ passage.position }} · {{ passage.chapter }} · {{ passage.rating.level }}/5 · {{ passage.rating.label }}</p>{% empty %}<p>No supported horror cues found.</p>{% endfor %}
+    <p class="small">The draft rating uses word-weighted passage averages. A quiet buildup can lower the average while the climax remains intense.</p>
+  </details>
+  <details><summary>Darkness scale guide</summary>
+    {% for item in revision.analysis.darkness.scale %}<p><strong>{{ item.level }} · {{ item.label }}</strong> — {{ item.description }}</p>{% endfor %}
+    <p class="small">An editorial scale, not a standardized rating. Negated cues are excluded where detected; repeated copies of the same cue do not increase a passage's cue count.</p>
+  </details>
+</section>
+{% endif %}

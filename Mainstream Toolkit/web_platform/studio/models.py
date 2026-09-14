@@ -76,7 +76,7 @@ class Revision(models.Model):
     label = models.CharField(max_length=160)
     manuscript = models.TextField()
     fingerprint = models.CharField(max_length=64)
-    profile = models.CharField(max_length=20, choices=[('general', 'General fiction'), ('river', 'The River Beyond Zero')])
+    profile = models.CharField(max_length=20, choices=[('general', 'General fiction'), ('river', 'The River Beyond Zero'), ('creepypasta', 'Creepypasta · darkness')])
     word_count = models.PositiveIntegerField()
     engine_version = models.CharField(max_length=40)
     analysis = models.JSONField()

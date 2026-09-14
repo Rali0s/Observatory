@@ -57,7 +57,8 @@ class ProjectForm(forms.ModelForm):
 
 class RevisionForm(forms.Form):
     label = forms.CharField(max_length=160, label='Revision name')
-    profile = forms.ChoiceField(choices=[('general', 'General fiction'), ('river', 'The River Beyond Zero')])
+    profile = forms.ChoiceField(choices=Revision._meta.get_field('profile').choices,
+        help_text='Choose Creepypasta for a private 0–5 darkness estimate and supporting passages.')
     manuscript = forms.CharField(widget=forms.Textarea(attrs={'rows': 16, 'placeholder': '# Chapter One\n\nYour prose…', 'data-writing-editor': 'true'}),
                                 required=False, max_length=500000)
     upload = forms.FileField(required=False, label='Or import a Markdown / text file')
