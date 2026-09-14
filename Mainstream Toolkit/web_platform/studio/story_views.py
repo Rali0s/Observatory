@@ -76,10 +76,8 @@ def entry_action(request,entry_id):
 
 
 def preview(text):
-    import bleach
-    import markdown
-    # Images are served separately after ownership checks; no remote embeds.
-    return bleach.clean(markdown.markdown(text),tags=['p','h1','h2','h3','h4','em','strong','ul','ol','li','blockquote','hr','br','code','pre'],attributes={},strip=True)
+    from .markdown import render_markdown
+    return render_markdown(text)
 
 
 @login_required

@@ -3,12 +3,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild xverse-payment.js xverse-connect.js xverse-ordinal.js xverse-auth.js xverse-market.js --bundle --minify --outdir=../static",
+    "build": "esbuild xverse-payment.js xverse-connect.js xverse-ordinal.js xverse-auth.js xverse-market.js writing-editor.js --bundle --minify --outdir=../static",
     "test": "node --test *.test.cjs"
   },
   "dependencies": {
     "@sats-connect/core": "0.17.6",
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "prosemirror-commands": "1.7.2",
+    "prosemirror-example-setup": "1.2.3",
+    "prosemirror-history": "1.5.0",
+    "prosemirror-inputrules": "1.5.1",
+    "prosemirror-keymap": "1.2.3",
+    "prosemirror-markdown": "1.13.7",
+    "prosemirror-schema-list": "1.5.1",
+    "prosemirror-state": "1.4.4",
+    "prosemirror-view": "1.42.3"
   },
   "overrides": {
     "axios": "1.20.0"

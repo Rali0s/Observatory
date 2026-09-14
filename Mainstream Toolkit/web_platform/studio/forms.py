@@ -26,7 +26,7 @@ class PublishForm(forms.ModelForm):
     class Meta:
         model = Publication
         fields = ['title', 'kind', 'channel', 'hashtags', 'excerpt', 'body', 'source_revision']
-        widgets = {'body': forms.Textarea(attrs={'rows': 18}), 'excerpt': forms.Textarea(attrs={'rows': 3})}
+        widgets = {'body': forms.Textarea(attrs={'rows': 18, 'data-writing-editor': 'true'}), 'excerpt': forms.Textarea(attrs={'rows': 3})}
 
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
@@ -58,7 +58,7 @@ class ProjectForm(forms.ModelForm):
 class RevisionForm(forms.Form):
     label = forms.CharField(max_length=160, label='Revision name')
     profile = forms.ChoiceField(choices=[('general', 'General fiction'), ('river', 'The River Beyond Zero')])
-    manuscript = forms.CharField(widget=forms.Textarea(attrs={'rows': 16, 'placeholder': '# Chapter One\n\nYour prose…'}),
+    manuscript = forms.CharField(widget=forms.Textarea(attrs={'rows': 16, 'placeholder': '# Chapter One\n\nYour prose…', 'data-writing-editor': 'true'}),
                                 required=False, max_length=500000)
     upload = forms.FileField(required=False, label='Or import a Markdown / text file')
 

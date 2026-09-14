@@ -10,7 +10,8 @@ class ChapterForm(forms.ModelForm):
     class Meta:
         model = DraftChapter
         fields = ['title','section','position','markdown','art_alt']
-        widgets = {'markdown':forms.Textarea(attrs={'rows':22})}
+        labels = {'markdown': 'Chapter text'}
+        widgets = {'markdown':forms.Textarea(attrs={'rows':22,'data-writing-editor':'true'})}
 
     def clean_image(self):
         from PIL import Image
@@ -41,8 +42,8 @@ class EditionForm(forms.Form):
     title = forms.CharField(max_length=160)
     author = forms.CharField(max_length=160, required=False)
     subtitle = forms.CharField(max_length=160, required=False)
-    title_page = forms.CharField(widget=forms.Textarea(attrs={'rows':3}), initial='# {title}\n\n{author}',max_length=8000)
-    copyright_page = forms.CharField(widget=forms.Textarea(attrs={'rows':3}), initial='Copyright {copyright_year} {author}\n\nAll rights reserved.',max_length=8000)
+    title_page = forms.CharField(widget=forms.Textarea(attrs={'rows':3,'data-writing-editor':'true'}), initial='# {title}\n\n{author}',max_length=8000)
+    copyright_page = forms.CharField(widget=forms.Textarea(attrs={'rows':3,'data-writing-editor':'true'}), initial='Copyright {copyright_year} {author}\n\nAll rights reserved.',max_length=8000)
     trim_size = forms.ChoiceField(choices=[(x,x) for x in ['5 x 8 in','5.5 x 8.5 in','6 x 9 in','A5','US Letter']],initial='6 x 9 in')
     font_family = forms.ChoiceField(choices=[(x,x) for x in ['Times','Helvetica','Courier']])
     font_size = forms.IntegerField(min_value=8,max_value=24,initial=11)
