@@ -128,3 +128,14 @@ Code commit `5e861f8` is live on web (`57c7e8ca-a604-4ef4-8297-890075e12690`) an
 - The worker had one startup chain lookup failure, then recovered on its next scheduled check and verified Bitcoin mainnet block 966,979. Local development was restarted; disposable preview services were stopped.
 
 Special-sat execution remains a manual Gamma step because Xverse's standard inscription API cannot select a specific sat. Fee estimates exclude provider charges; the wallet/provider presents the final transaction. See [ordinal edition operation and fee policy](ORDINAL_EDITIONS.md).
+
+## Creepypasta darkness deployed — 2026-09-14
+
+Code commit `185b846` is live on web (`cccd6b6f-91cf-4611-9d00-f07e2b6c34f3`) and worker (`dd07ce6b-9c15-4aea-a5c7-40328f936bdf`), both SUCCESS. Production migration 0013 added the Creepypasta profile choice successfully.
+
+- New revisions and chapter snapshots can opt into a private 0–5 darkness estimate, five horror dimensions, chapter ratings, strongest passages, supporting evidence, and revision prompts. Existing reports retain their original analysis.
+- Full validation passed 140 PostgreSQL tests and 19 frontend tests. SQLite completed 140 tests with 5 PostgreSQL-only tests skipped. A final six-test darkness regression run passed after correcting dimension descriptions. Django checks, migration consistency, and whitespace checks passed.
+- Browser verification used a disposable local report: confirmed the overall rating, expanded dimension descriptions, separate zero-gore result, and the Darkness timeline. Exports, chapter snapshots, comparisons with legacy profiles, and account isolation are covered by automated tests.
+- Production health and login returned 200; anonymous studio access redirected to login. Local migration and restart succeeded. No production manuscript was created or rescored for verification, and no manuscript was sent to an external AI service.
+
+See [darkness scale, method, and limitations](CREEPYPASTA_DARKNESS.md).
