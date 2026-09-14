@@ -143,3 +143,14 @@ See [darkness scale, method, and limitations](CREEPYPASTA_DARKNESS.md).
 ## Copyright footer deployed — 2026-09-14
 
 Code commit `011a4eb` is live on web (`797ba7a4-4d6e-4708-a1e8-f8b261afed7b`, SUCCESS). The shared footer now reads “Made for close reading. Your judgment leads the revision. | A Premise LLC Venture © 2026-2027”. Verified the exact text in local and production HTTP responses. This template-only change requires no migration or worker deployment.
+
+## Invite campaign management deployed — 2026-09-14
+
+Code commit `3669169` is live on web (`ecfdf8dc-e953-4792-abcf-772cd2212d6d`) and worker (`628f2dd4-9a6d-4c3b-b39b-bcdc134902e6`), both SUCCESS. No migration was required.
+
+- Account now links to invite management for authorized issuers. Dashboard totals, search, status/type filters, pagination, per-campaign progress, settings, and recipient history are available. Limits and deadline edits preserve prior grants and serialize with redemption. Non-admin issuers remain scoped to their own campaigns and see public recipient names rather than sign-in names.
+- All 145 PostgreSQL tests and 19 frontend tests passed. SQLite completed 145 tests with 5 PostgreSQL-only tests skipped. Django, migration consistency, and whitespace checks passed.
+- Browser verification used disposable local campaigns and a redemption: confirmed the dashboard, progress, grant history, and saving a changed capacity from 10 to 12. No production invitation, redemption, or permission was changed for verification.
+- Production health/login returned 200; dashboard and new detail routes redirect anonymous visitors to sign-in. Worker verified Bitcoin block 966,981. Local development restarted and the disposable preview was stopped.
+
+See [invite management and tracking behavior](INVITES_AND_SHARING.md). Tracking covers completed redemptions, not delivery, link opens, or incomplete signups.
