@@ -197,3 +197,10 @@ class MergeTests(TestCase):
             caller=Client();self.assertTrue(caller.login(username=username,password=password))
             self.assertEqual(caller.session['_auth_user_id'],str(admin.pk))
         self.assertEqual(m.AccountMerge.objects.filter(target=admin).count(),2)
+
+    def test_default_quota_is_preserved_when_primary_has_smaller_legacy_grant(self):
+        m.AccessGrant.objects.create(user=self.first,max_projects=3,max_words_per_revision=1000)
+        self.passwords();self.confirm()
+        grant=m.AccessGrant.objects.get(user=self.first)
+        self.assertEqual(grant.max_projects,10)
+        self.assertEqual(grant.max_words_per_revision,20000)

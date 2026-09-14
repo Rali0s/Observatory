@@ -128,16 +128,17 @@ def merge_accounts(attempt_id, owner_id, bound_session, expected_target):
         for model in [m.AccessGrant,m.ProfileUnlock]:
             item=model.objects.filter(user=source).first()
             existing=model.objects.filter(user=target).first()
-            if item and not existing:
-                if model == m.AccessGrant:
-                    from django.conf import settings
-                    item.max_projects=max(10,item.max_projects)
-                    item.max_words_per_revision=max(settings.OBSERVATORY_MAX_WORDS,item.max_words_per_revision)
-                item.user=target; item.save()
-            elif item and model == m.AccessGrant:
-                existing.max_projects=max(existing.max_projects,item.max_projects)
-                existing.max_words_per_revision=max(existing.max_words_per_revision,item.max_words_per_revision)
-                existing.save(update_fields=['max_projects','max_words_per_revision'])
+            if model == m.AccessGrant and (item or existing):
+                from django.conf import settings
+                max_projects=max(g.max_projects if g else 10 for g in (item,existing))
+                max_words=max(g.max_words_per_revision if g else settings.OBSERVATORY_MAX_WORDS for g in (item,existing))
+                grant=existing or item
+                grant.user=target
+                grant.max_projects=max_projects
+                grant.max_words_per_revision=max_words
+                grant.save()
+            elif item and not existing:
+                item.user=target; item.save(update_fields=['user'])
         target.groups.add(*source.groups.all())
         target.user_permissions.add(*source.user_permissions.all())
         m.AccountMerge.objects.filter(target=source).update(target=target)
