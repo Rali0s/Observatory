@@ -23,7 +23,7 @@ def ordinal(request, publication_id):
     owner=request.user.is_authenticated and post.author.user_id==request.user.pk
     edition=OrdinalEdition.objects.filter(publication=post).first()
     flags=controls()
-    form=EditionForm()
+    form=EditionForm(user=request.user)
     inscription_form=InscriptionForm()
     listing_form=ListingForm(initial={'marketplace_url':edition.marketplace_url if edition else ''})
     if request.method=='POST':
@@ -31,7 +31,7 @@ def ordinal(request, publication_id):
         action=request.POST.get('action')
         if action=='prepare':
             if not flags.enabled: return HttpResponse('New minting is paused.',status=403)
-            form=EditionForm(request.POST)
+            form=EditionForm(request.POST,user=request.user)
             if form.is_valid():
                 if form.cleaned_data['sat_mode']=='special' and not flags.special_sats_enabled:
                     form.add_error('sat_mode','Special-sat minting is paused.')
@@ -42,6 +42,7 @@ def ordinal(request, publication_id):
                         if OrdinalEdition.objects.filter(publication=post).exists(): return
                         item=OrdinalEdition(publication=post,sat_mode=form.cleaned_data['sat_mode'],requested_sat=form.cleaned_data['requested_sat'])
                         item.metadata,item.content=make_content(post,item.pk,form.cleaned_data)
+                        if len(item.content.encode('utf-8'))>350000:raise ValueError('This edition exceeds the 350 KB limit. Shorten the published text before freezing it.')
                         item.content_hash=hashlib.sha256(item.content.encode()).hexdigest()
                         item.save()
                     try: save_content(request.user,create)
@@ -75,7 +76,10 @@ def ordinal(request, publication_id):
         else: return HttpResponse('Invalid action.',status=400)
     if not owner and (not edition or edition.status!='minted'): edition=None
     return render(request,'community/ordinal.html',{'post':post,'owner':owner,'edition':edition,'flags':flags,
-        'form':form,'inscription_form':inscription_form,'listing_form':listing_form,'index_ready':bool(settings.ORDINAL_INDEX_URL)})
+        'form':form,'inscription_form':inscription_form,'listing_form':listing_form,'index_ready':bool(settings.ORDINAL_INDEX_URL),
+        'trait_rows':list(zip(request.POST.getlist('trait_name'),request.POST.getlist('trait_value'))) or [('', '')],
+        'linked_wallets':request.user.wallet_identities.all() if request.user.is_authenticated else [],
+        'platform_fee':0 if edition and edition.sat_mode=='special' else settings.ORDINAL_PLATFORM_FEE_SATS})
 
 
 @login_required
@@ -88,8 +92,11 @@ def ordinal_wallet(request, publication_id):
         if action=='begin':
             if not controls().enabled or not settings.ORDINAL_INDEX_URL: return JsonResponse({'error':'Minting is paused or verification is not configured.'},status=403)
             if edition.sat_mode!='regular' or edition.status!='prepared': return JsonResponse({'error':'This edition already has an attempt. Check its status before trying again.'},status=409)
+            from .mint_fees import wallet_fee_payload
+            try: fee_payload=wallet_fee_payload(edition,request.POST.get('quote',''))
+            except ValueError as exc:return JsonResponse({'error':str(exc)},status=400)
             edition.status='awaiting'; edition.save(update_fields=['status'])
-            return JsonResponse({'content':edition.content,'contentType':'text/html','payloadType':'PLAIN_TEXT'})
+            return JsonResponse({'content':edition.content,'contentType':'text/html','payloadType':'PLAIN_TEXT',**fee_payload})
         if action=='broadcast' and edition.status=='awaiting':
             txid=request.POST.get('txid','')
             if not re.fullmatch('[0-9a-f]{64}',txid): return JsonResponse({'error':'Invalid transaction ID.'},status=400)
@@ -119,3 +126,47 @@ def ordinal_publish(request):
     posts=Publication.objects.filter(author__user=request.user,is_visible=True).select_related('ordinal').order_by('-published_at','-pk')
     return render(request,'community/ordinal_publish.html',{'page':Paginator(posts,12).get_page(request.GET.get('page')),
         'flags':controls(),'index_ready':bool(settings.ORDINAL_INDEX_URL)})
+
+
+@login_required
+@never_cache
+@require_http_methods(['GET'])
+def wallet_sats(request):
+    from .rare_sats import inventory
+    from .wallet_auth import limited
+    if limited(request,'rare-sats'):return JsonResponse({'error':'Too many scans. Try again in five minutes.'},status=429)
+    try:
+        page=int(request.GET.get('page','0'))
+        if not 0<=page<=833:raise ValueError('Invalid scan page.')
+        result=inventory(request.user,request.GET.get('address',''),page)
+        return JsonResponse(result)
+    except ValueError as exc:return JsonResponse({'error':str(exc)},status=400)
+    except Exception:return JsonResponse({'error':'Wallet sats could not be loaded from the Bitcoin index. Retry shortly; no sats have moved.'},status=503)
+
+
+@login_required
+@never_cache
+@require_POST
+def ordinal_fees(request,publication_id):
+    from . import mint_fees
+    from .wallet_auth import limited
+    import uuid
+    if limited(request,'ordinal-fees'):return JsonResponse({'error':'Too many estimates. Try again shortly.'},status=429)
+    post=get_object_or_404(Publication,pk=publication_id,author__user=request.user,is_visible=True)
+    edition=OrdinalEdition.objects.filter(publication=post).first()
+    try:
+        try: rates=mint_fees.recommendations()
+        except Exception: rates={}
+        speed=request.POST.get('speed','standard')
+        chosen=request.POST.get('fee_rate') if speed=='custom' else rates.get(speed)
+        if chosen is None:return JsonResponse({'error':'Live fee rates are unavailable. Enter a custom sats/vB rate to estimate fees.','rates':rates},status=503)
+        if edition:content=edition.content
+        else:
+            data=request.POST.copy()
+            # Fee preview never freezes or approves an edition and does not need a selected sat.
+            data['consent']='on';data['sat_mode']='regular'
+            form=EditionForm(data,user=request.user)
+            if not form.is_valid():return JsonResponse({'error':'Complete the edition name and check your trait fields before estimating.'},status=400)
+            _,content=make_content(post,uuid.UUID(int=0),form.cleaned_data)
+        return JsonResponse({**mint_fees.estimate(content,chosen,edition,external=(edition.sat_mode if edition else request.POST.get('sat_mode'))=='special'),'rates':rates})
+    except ValueError as exc:return JsonResponse({'error':str(exc)},status=400)

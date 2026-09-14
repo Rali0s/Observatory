@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild xverse-payment.js xverse-connect.js xverse-ordinal.js xverse-auth.js xverse-market.js writing-editor.js --bundle --minify --outdir=../static",
+    "build": "esbuild xverse-payment.js xverse-connect.js xverse-ordinal.js xverse-auth.js xverse-market.js writing-editor.js ordinal-builder.js --bundle --minify --outdir=../static",
     "test": "node --test *.test.cjs"
   },
   "dependencies": {

@@ -1,0 +1,18 @@
+<section class="paper mint-builder" id="mint-builder" data-inventory-url="{% url 'wallet-sats' %}" data-challenge-url="{% url 'wallet-challenge' %}" data-verify-url="{% url 'wallet-authenticate' %}">
+<p class="eyebrow">1 · YOUR EDITION</p><h2>Make your writing collectible</h2><p>Add the details readers will see. You can add traits one at a time—no code required.</p>
+<form method="post" id="edition-form">{% csrf_token %}{{ form.non_field_errors }}
+<div class="mint-fields"><p>{{ form.edition_name.label_tag }}{{ form.edition_name }}{{ form.edition_name.errors }}</p><p>{{ form.collection.label_tag }}{{ form.collection }}{{ form.collection.errors }}</p></div>
+<p>{{ form.description.label_tag }}{{ form.description }}{{ form.description.errors }}</p>
+<div class="mint-fields"><p>{{ form.language.label_tag }}{{ form.language }}{{ form.language.errors }}</p><p>{{ form.genre.label_tag }}{{ form.genre }}{{ form.genre.errors }}</p></div>
+<fieldset class="mint-traits"><legend>Extra traits <span class="muted">(optional)</span></legend><p class="small">Examples: Cover · Green, Series · The Quiet Hours, Edition · 1 of 1.</p><div id="trait-rows">{% for name,value in trait_rows %}<div class="trait-row"><label>Trait name<input name="trait_name" maxlength="60" value="{{ name }}" placeholder="e.g. Series"></label><label>Value<input name="trait_value" maxlength="240" value="{{ value }}" placeholder="e.g. The Quiet Hours"></label><button type="button" class="quiet remove-trait" aria-label="Remove trait">Remove</button></div>{% endfor %}</div><button type="button" id="add-trait" class="quiet">+ Add a trait</button><p id="trait-status" role="status" class="small"></p></fieldset>
+<p class="eyebrow">2 · CHOOSE YOUR SAT</p><fieldset class="mint-mode"><legend>How would you like to inscribe?</legend>{{ form.sat_mode }}{{ form.sat_mode.errors }}</fieldset>
+<div id="special-sat-fields" {% if form.sat_mode.value != 'special' %}hidden{% endif %}>
+<p>Choose a rare sat held by your wallet. We check confirmed outputs and leave bundles containing inscriptions or runes out of this list.</p>
+<p><label for="rare-wallet">Your linked wallet</label><select id="rare-wallet"><option value="">Choose a wallet</option>{% for identity in linked_wallets %}<option value="{{ identity.address }}">{{ identity.address }}</option>{% endfor %}</select></p>
+<div class="mint-actions"><button type="button" id="connect-rare-wallet" class="quiet">Connect Xverse</button><button type="button" id="load-rare-sats">Load rare sats</button><button type="button" id="more-rare-sats" class="quiet" hidden>Scan more outputs</button></div>
+<p id="rare-status" role="status" aria-live="polite">No wallet scan has started. Your sats will not move.</p><p>{{ form.sat_choice.label_tag }}{{ form.sat_choice }}{{ form.sat_choice.errors }}</p>
+<p class="small">Lists Ordinal rarity, such as uncommon, rare, and epic. Exotic traits such as Pizza are not classified here. Special-sat inscription is completed in Gamma; Xverse's regular mint cannot select this sat.</p><a id="rare-merge-link" href="{% url 'account-merge' %}" hidden>This wallet has another account. Verify both accounts and merge →</a>
+</div><p id="regular-sat-note">Xverse chooses the sat and receives the inscription in your Ordinals wallet. No exact sat number is needed.</p>
+{% include 'community/ordinal_fee_estimate.html' %}
+<p class="mint-consent">{{ form.consent }} {{ form.consent.label_tag }}{{ form.consent.errors }}</p><button name="action" value="prepare" {% if not flags.enabled %}disabled{% endif %}>Freeze edition &amp; preview</button><p class="small">Freezing saves the exact public edition. You will review it before approving any Bitcoin transaction.</p>
+</form></section>

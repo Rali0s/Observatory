@@ -10,7 +10,7 @@ if(form){
  button.addEventListener('click',async()=>{
   button.disabled=true;status.textContent='Preparing your frozen edition…';
   try{
-   const payload=await send('begin');
+   const payload=await send('begin',{quote:form.dataset.quote||''});
    status.textContent='Review the Bitcoin fee and edition in Xverse.';
    await createInscription({payload:{network:{type:'Mainnet'},...payload},
     onFinish:async result=>{

@@ -152,4 +152,5 @@ def authenticate(request):
     from .invite_views import pending_code
     if pending_code(request):
         destination = '/invite/'
-    return JsonResponse({'ok': True, 'redirect': destination})
+    from django.middleware.csrf import get_token
+    return JsonResponse({'ok': True, 'redirect': destination, 'csrf_token': get_token(request)})

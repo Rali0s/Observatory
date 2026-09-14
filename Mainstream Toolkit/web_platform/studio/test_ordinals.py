@@ -16,7 +16,7 @@ class OrdinalTests(TestCase):
         self.post=Publication.objects.create(author=self.author,title='Frozen story',body='Public <script>bad()</script>',excerpt='A story')
         self.url=reverse('ordinal',args=[self.post.pk])
         self.wallet=reverse('ordinal-wallet',args=[self.post.pk])
-        self.data={'action':'prepare','edition_name':'First edition','description':'A quiet story','attributes':'{"language":"English"}','sat_mode':'regular','consent':'on'}
+        self.data={'action':'prepare','edition_name':'First edition','description':'A quiet story','language':'English','sat_mode':'regular','consent':'on'}
         self.flags,_=OrdinalSettings.objects.update_or_create(pk=1,defaults={'enabled':True,'special_sats_enabled':True})
         self.client.force_login(self.writer)
 
@@ -44,7 +44,9 @@ class OrdinalTests(TestCase):
     def test_wallet_duplicate_attempt_and_switch(self):
         edition=self.prepare()
         self.assertEqual(self.client.get(self.wallet).status_code,405)
-        response=self.client.post(self.wallet,{'action':'begin'})
+        from .mint_fees import estimate
+        quote=estimate(edition.content,3,edition)['quote']
+        response=self.client.post(self.wallet,{'action':'begin','quote':quote})
         self.assertEqual(response.json()['content'],edition.content)
         self.assertEqual(self.client.post(self.wallet,{'action':'begin'}).status_code,409)
         self.client.post(self.wallet,{'action':'broadcast','txid':'b'*64})
@@ -57,8 +59,9 @@ class OrdinalTests(TestCase):
         self.data['sat_mode']='special'
         self.assertEqual(self.client.post(self.url,self.data).status_code,200)
         self.assertFalse(OrdinalEdition.objects.exists())
-        self.data['requested_sat']='123'
-        edition=self.prepare()
+        self.data['sat_choice']='verified-choice'
+        with patch('studio.rare_sats.selection',return_value={'sat':123}):
+            edition=self.prepare()
         self.assertEqual(edition.requested_sat,123)
         self.assertEqual(self.client.post(self.wallet,{'action':'begin'}).status_code,409)
 
@@ -77,8 +80,10 @@ class OrdinalTests(TestCase):
     @patch('studio.ordinals.chain_height',return_value=100)
     @patch('studio.ordinals.fetch')
     def test_verified_content_confirmations_sat_and_no_republishing(self,fetch,height):
-        self.data.update(sat_mode='special',requested_sat='123')
-        edition=self.prepare();iid='a'*64+'i0'
+        self.data.update(sat_mode='special',sat_choice='verified-choice')
+        with patch('studio.rare_sats.selection',return_value={'sat':123}):
+            edition=self.prepare()
+        iid='a'*64+'i0'
         edition.inscription_id=iid;edition.status='submitted';edition.save()
         responses={'/status':{'chain':'mainnet','height':100},'/inscription/'+iid:{'id':iid,'sat':123},
             '/content/'+iid:edition.content.encode(),'/tx/'+'a'*64:{'txid':'a'*64,'status':{'confirmed':True,'block_height':95,'block_hash':'b'*64}},

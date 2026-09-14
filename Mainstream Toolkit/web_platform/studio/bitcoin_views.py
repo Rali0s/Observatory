@@ -15,7 +15,9 @@ from .direct_payments import create_order,reconcile
 @require_http_methods(['GET'])
 def wallet(request):
     from .direct_payments import ready
+    from django.conf import settings
     return render(request,'community/wallet.html',{'checkout_ready':ready(),
+        'receiving_wallets': [('Portal membership',settings.PORTAL_MEMBERSHIP_WALLET),('Ordinal platform fees',settings.ORDINAL_FEES_WALLET),('Redemption',settings.REDEMPTION_WALLET)] if request.user.is_staff or request.user.is_superuser else [],
         'orders':PaymentOrder.objects.filter(user=request.user,provider='direct').order_by('-created_at')[:5]})
 
 

@@ -4,6 +4,8 @@ from .voting import vote
 from . import ordinal_views, achievement_views, wallet_auth, stripe_views, discovery, market_views
 from . import views, community, story_views, bitcoin_views, invite_views
 urlpatterns = [
+    path('account/wallet/sats/', ordinal_views.wallet_sats, name='wallet-sats'),
+    path('read/<uuid:publication_id>/ordinal/fees/', ordinal_views.ordinal_fees, name='ordinal-fees'),
     path('account/merge/', merge_views.overview, name='account-merge'),
     path('account/merge/confirm/', merge_views.confirm, name='account-merge-confirm'),
     path('account/merge/cancel/', merge_views.cancel, name='account-merge-cancel'),

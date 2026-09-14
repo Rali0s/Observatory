@@ -124,3 +124,22 @@ ORDINAL_MAX_PRICE_SATS = 100000000
 ORDINAL_MAX_FEE_SATS = 100000
 
 AUTHENTICATION_BACKENDS = ['studio.auth_backend.MergedAccountBackend', 'django.contrib.auth.backends.ModelBackend']
+
+# Operator receiving destinations. These are public addresses, never wallet secrets.
+PORTAL_MEMBERSHIP_WALLET = os.getenv('PORTAL_MEMBERSHIP_WALLET', 'bc1qhke8vfglf2t2gu8tv7pm3x7yma3uz8ucndfaex')
+ORDINAL_FEES_WALLET = os.getenv('ORDINAL_FEES_WALLET', 'bc1qzs2nsqjhx8hnrg4vvlzzpmp3smjkh0xl75h90g')
+REDEMPTION_WALLET = os.getenv('REDEMPTION_WALLET', 'bc1qwfsp8c2af6lxkmqmddu53s7pcmck6936rwg8wm')
+ORDINAL_PLATFORM_FEE_SATS = int(os.getenv('ORDINAL_PLATFORM_FEE_SATS', '0'))
+BITCOIN_FEE_URL = os.getenv('BITCOIN_FEE_URL', 'https://mempool.space/api/v1/fees/recommended')
+if ORDINAL_PLATFORM_FEE_SATS != 0 and not 546 <= ORDINAL_PLATFORM_FEE_SATS <= 1000000:
+    raise ImproperlyConfigured('Ordinal platform fee must be 0 or between 546 and 1,000,000 sats.')
+if not BITCOIN_FEE_URL.startswith('https://'):
+    raise ImproperlyConfigured('Miner fee lookup requires HTTPS.')
+from embit import script as bitcoin_script
+from embit.networks import NETWORKS as BITCOIN_NETWORKS
+for receiving_address in (PORTAL_MEMBERSHIP_WALLET, ORDINAL_FEES_WALLET, REDEMPTION_WALLET):
+    try:
+        if bitcoin_script.address_to_scriptpubkey(receiving_address).address(BITCOIN_NETWORKS['main']) != receiving_address:
+            raise ValueError()
+    except Exception as exc:
+        raise ImproperlyConfigured('Configure valid Bitcoin mainnet receiving wallets.') from exc
