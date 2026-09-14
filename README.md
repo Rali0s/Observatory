@@ -23,6 +23,8 @@ Create an account through `/join/` or Xverse sign-in. An existing account can li
 
 ## Features and setup
 
+- **Visual writing:** switch between a formatting editor and Markdown, with headings, bold/italic, lists, quotes, undo/redo, and a help guide. See [writing editor](Mainstream%20Toolkit/docs/WRITING_EDITOR.md).
+
 - **Admin access and invites:** unlimited admin publishing and plan allowances; admin-issued three-month and lifetime passes, with optional selected-member issuing permissions.
 - **Reading Room sharing:** X, Facebook, Blogger, LinkedIn, copy link, and device sharing on public readings.
 

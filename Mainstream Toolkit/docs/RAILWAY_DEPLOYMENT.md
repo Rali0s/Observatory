@@ -78,3 +78,14 @@ Code commit `eafd6a2` is deployed to both services:
 - Stripe Writer and Unlock product images now point to the verified production static PNG URLs.
 
 See [invite operation, sharing, and five domain choices](INVITES_AND_SHARING.md). No custom domain has been purchased or attached. Production admin authentication was not exercised; the local browser preview used an isolated disposable database.
+
+## Visual writing editor deployed — 2026-09-14
+
+Code commit `954e581` is live on web (`17ad62d2-7081-40f7-a9fd-b0e85bcfbc38`) and worker (`4da3c53b-d267-4514-bc31-813f5d6c4607`); both deployments succeeded. No database migration was needed.
+
+- Visual/Markdown switching, H1–H3, bold, italic, lists, quotes, undo/redo, and Markdown help are available in chapter, revision, publication, and front-matter fields.
+- Browser verification confirmed live heading conversion, bold serialization, help display, revision saving, and visual reopening in the chapter workbench.
+- 103 Django tests completed: 100 passed and the 3 PostgreSQL concurrency tests were skipped on SQLite. All 17 frontend tests passed. Django/migration checks and npm audit passed.
+- Production health and editor JavaScript/CSS returned HTTP 200; deployed asset hashes match the local build.
+
+See [writing editor behavior and implementation](WRITING_EDITOR.md). `observatory.cafe` was not resolving from the verification environment at the time of this release, so HTTPS asset checks used the existing Railway-generated domain.
