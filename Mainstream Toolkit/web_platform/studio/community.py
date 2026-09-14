@@ -65,6 +65,10 @@ def feed(request):
 @never_cache
 def author(request, author_id):
     profile = get_object_or_404(AuthorProfile, pk=author_id)
+    from .merging import canonical_user
+    canonical = canonical_user(profile.user)
+    if canonical.pk != profile.user_id:
+        return redirect('author', author_id=canonical.author_profile.pk)
     posts = profile.publications.filter(is_visible=True).select_related('author','ordinal').prefetch_related('tags')
     ordinal_tab=request.GET.get('tab')=='ordinals'
     if ordinal_tab: posts=posts.filter(ordinal__status='minted')
@@ -102,7 +106,7 @@ def signup(request):
             with transaction.atomic():
                 user = form.save()
                 AuthorProfile.objects.create(user=user, pen_name=form.cleaned_data['pen_name'])
-            login(request, user)
+            login(request, user, backend="studio.auth_backend.MergedAccountBackend")
             return redirect('invite-landing' if pending_code(request) else 'account')
     return render(request, 'community/signup.html', {'form': form})
 
@@ -190,6 +194,10 @@ def withdraw(request, publication_id):
 @require_POST
 def follow(request, author_id):
     profile = get_object_or_404(AuthorProfile, pk=author_id)
+    from .merging import canonical_user
+    canonical = canonical_user(profile.user)
+    if canonical.pk != profile.user_id:
+        profile = canonical.author_profile
     if profile.user_id != request.user.id:
         relation, created = Follow.objects.get_or_create(user=request.user, author=profile)
         if not created:

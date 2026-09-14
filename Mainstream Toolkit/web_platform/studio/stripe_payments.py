@@ -8,6 +8,7 @@ from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
 from .membership import TERM, chain_height, membership_state
+from .merging import lock_order
 from .models import PaymentOrder, PublishingMembership
 
 
@@ -73,13 +74,12 @@ def fulfill(session):
     if (session.get('mode') != 'payment' or session.get('currency') != 'usd'
             or session.get('amount_total') != int(order.amount_usd * 100)
             or session.get('client_reference_id') != str(order.pk)
-            or session.get('metadata', {}).get('userId') != str(order.user_id)
+            or session.get('metadata', {}).get('userId') != str(order.billing_user_id or order.user_id)
             or not session.get('id')
             or (order.provider_invoice_id and order.provider_invoice_id != session['id'])):
         raise ValueError('Checkout identity or amount mismatch.')
     with transaction.atomic():
-        get_user_model().objects.select_for_update().get(pk=order.user_id)
-        locked = PaymentOrder.objects.select_for_update().get(pk=order.pk)
+        locked = lock_order(order)
         if locked.applied_at_block is not None:
             return
         if locked.provider_invoice_id and locked.provider_invoice_id != session['id']:

@@ -121,6 +121,8 @@ class WalletIdentity(models.Model):
 
 
 class WalletChallenge(models.Model):
+    merge_attempt = models.ForeignKey("MergeAttempt", on_delete=models.CASCADE, null=True, related_name="wallet_challenges")
+    merge_slot = models.CharField(max_length=5, blank=True)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     address = models.CharField(max_length=100)
     message = models.TextField()
@@ -208,6 +210,7 @@ class PublicationReport(models.Model):
 
 
 class PaymentOrder(models.Model):
+    billing_user_id = models.PositiveBigIntegerField(null=True, editable=False)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     amount_usd = models.DecimalField(max_digits=8, decimal_places=2)
@@ -365,3 +368,23 @@ class OrdinalHolding(models.Model):
     address = models.CharField(max_length=100, db_index=True)
     outpoint = models.CharField(max_length=80)
     checked_at = models.DateTimeField()
+
+
+class AccountMerge(models.Model):
+    source = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='merged_account')
+    target = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='merged_aliases')
+    details = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MergeAttempt(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='+')
+    other = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name='+')
+    session_hash = models.CharField(max_length=64)
+    owner_auth_hash = models.CharField(max_length=64, blank=True)
+    other_auth_hash = models.CharField(max_length=64, blank=True)
+    owner_wallet = models.CharField(max_length=100, blank=True)
+    other_wallet = models.CharField(max_length=100, blank=True)
+    expires_at = models.DateTimeField()
+    consumed_at = models.DateTimeField(null=True)

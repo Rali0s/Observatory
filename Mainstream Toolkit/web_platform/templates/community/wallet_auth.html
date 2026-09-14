@@ -3,4 +3,5 @@
 {% csrf_token %}<button type="submit">{% if user.is_authenticated %}Link Xverse for sign-in{% else %}Continue with Xverse{% endif %}</button>
 </form>
 <p id="xverse-auth-status" role="status" aria-live="polite">Sign a one-time message with your payment wallet. {% if not user.is_authenticated %}New wallets create a free account. To link an existing account, sign in with your password first.{% endif %}</p>
+<p><a id="xverse-merge-link" href="{% url 'account-merge' %}" {% if not user.is_authenticated %}hidden{% endif %}>Wallet already linked? Verify both accounts and merge</a></p>
 <script src="{% static 'xverse-auth.js' %}" defer></script>

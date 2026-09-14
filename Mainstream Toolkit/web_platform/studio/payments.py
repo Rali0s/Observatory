@@ -9,6 +9,7 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import timedelta
 from .membership import TERM, chain_height, membership_state
+from .merging import lock_order
 from .models import PaymentOrder, PublishingMembership
 
 
@@ -74,8 +75,7 @@ def reconcile_order(order):
         PaymentOrder.objects.filter(pk=order.pk, applied_at_block__isnull=True).update(status=invoice.get('status', 'unknown'))
         return
     with transaction.atomic():
-        get_user_model().objects.select_for_update().get(pk=order.user_id)
-        locked = PaymentOrder.objects.select_for_update().get(pk=order.pk)
+        locked = lock_order(order)
         if locked.applied_at_block is not None:
             return
         height = chain_height()

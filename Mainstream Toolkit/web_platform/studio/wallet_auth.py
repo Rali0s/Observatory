@@ -83,12 +83,26 @@ def challenge(request):
     now = timezone.now()
     expires = now + timedelta(minutes=5)
     purpose = 'Link this wallet to your signed-in Observatory account.' if request.user.is_authenticated else 'Sign in or create your Observatory account.'
+    merge_attempt = None
+    merge_slot = request.POST.get('merge_slot', '')
+    if request.POST.get('merge_attempt'):
+        if not request.user.is_authenticated or merge_slot not in ('owner', 'other'):
+            return JsonResponse({'error': 'Sign in and choose an account to verify.'}, status=400)
+        from .merge_views import active_attempt
+        try:
+            merge_attempt = active_attempt(request, request.POST['merge_attempt'])
+        except ValueError as exc:
+            return JsonResponse({'error': str(exc)}, status=400)
+        purpose = ('Verify ownership of the '+ ('current' if merge_slot == 'owner' else 'other') +
+            ' account for an Observatory account merge. Accounts change only after a separate review and confirmation.\n'
+            f'Merge request: {merge_attempt.pk}')
     message = (f'{request.get_host()} requests your Bitcoin wallet signature.\n\n{purpose}\n'
                f'No payment or Bitcoin transaction is authorized.\n\nAddress: {address}\n'
                f'URI: {request.build_absolute_uri("/")}\nNetwork: Bitcoin Mainnet\n'
                f'Nonce: {secrets.token_hex(32)}\nIssued at: {now.isoformat()}\nExpires at: {expires.isoformat()}')
     item = WalletChallenge.objects.create(address=address, message=message, session_hash=bound_session,
-        user=request.user if request.user.is_authenticated else None, expires_at=expires)
+        user=request.user if request.user.is_authenticated else None, expires_at=expires,
+        merge_attempt=merge_attempt, merge_slot=merge_slot if merge_attempt else '')
     return JsonResponse({'id': str(item.pk), 'message': message, 'address': address, 'protocol': 'BIP322' if address.startswith('bc1p') else 'ECDSA'})
 
 
@@ -113,12 +127,16 @@ def authenticate(request):
         item.save(update_fields=['consumed_at'])
         if not verify_signature(item.address, item.message, request.POST.get('signature', '')[:1024]):
             return JsonResponse({'error': 'Wallet signature could not be verified. Connect again.'}, status=400)
+        if item.merge_attempt_id:
+            from .merge_views import wallet_proof
+            return wallet_proof(request, item)
         try:
             with transaction.atomic():
                 identity = WalletIdentity.objects.select_related('user').filter(address=item.address).first()
                 if identity:
                     if user_id and identity.user_id != user_id:
-                        return JsonResponse({'error': 'This wallet is already linked to another account.'}, status=409)
+                        return JsonResponse({'error': 'This wallet already has an account. Verify both accounts to merge your writing and access.',
+                            'merge_url': '/account/merge/'}, status=409)
                     user = identity.user
                 else:
                     user = request.user if user_id else get_user_model().objects.create_user(

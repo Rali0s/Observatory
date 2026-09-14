@@ -1,8 +1,12 @@
 from django.urls import path
+from . import merge_views
 from .voting import vote
 from . import ordinal_views, achievement_views, wallet_auth, stripe_views, discovery, market_views
 from . import views, community, story_views, bitcoin_views, invite_views
 urlpatterns = [
+    path('account/merge/', merge_views.overview, name='account-merge'),
+    path('account/merge/confirm/', merge_views.confirm, name='account-merge-confirm'),
+    path('account/merge/cancel/', merge_views.cancel, name='account-merge-cancel'),
     path('invite/', invite_views.landing, name='invite-landing'),
     path('account/invites/', invite_views.dashboard, name='invites'),
     path('account/invites/settings/', invite_views.settings, name='invite-settings'),

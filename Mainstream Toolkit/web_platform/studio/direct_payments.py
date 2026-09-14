@@ -9,6 +9,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.utils import timezone
 from .membership import chain_height, membership_state, TERM
+from .merging import lock_order
 from .models import PaymentOrder, ReceivingAddress, PublishingMembership
 
 
@@ -58,8 +59,7 @@ def verify_transaction(order, tx):
         return 'Underpaid' if paid else 'Awaiting payment'
     status=tx.get('status',{})
     with transaction.atomic():
-        get_user_model().objects.select_for_update().get(pk=order.user_id)
-        locked=PaymentOrder.objects.select_for_update().get(pk=order.pk)
+        locked=lock_order(order)
         if locked.applied_at_block is not None: return 'Settled'
         now=timezone.now()
         # New/replaced transactions need their own timely observation; a previous

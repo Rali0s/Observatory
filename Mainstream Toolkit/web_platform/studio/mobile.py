@@ -1,5 +1,5 @@
 """Viewport-driven reading layout; permissions remain enforced by the normal views."""
-MOBILE_PAGES = {'feed', 'read', 'authors', 'author', 'login', 'signup', 'account', 'invite-landing'}
+MOBILE_PAGES = {'feed', 'read', 'authors', 'author', 'login', 'signup', 'account', 'invite-landing', 'account-merge'}
 
 
 def mobile_context(request):

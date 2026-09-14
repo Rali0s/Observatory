@@ -35,6 +35,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'studio.merge_middleware.AccountWriteMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -121,3 +122,5 @@ PUBLIC_BASE_URL = os.getenv('PUBLIC_BASE_URL', 'https://' + railway_domain if ra
 ORDINAL_TRADING_ENABLED = os.getenv('ORDINAL_TRADING_ENABLED', '0') == '1'
 ORDINAL_MAX_PRICE_SATS = 100000000
 ORDINAL_MAX_FEE_SATS = 100000
+
+AUTHENTICATION_BACKENDS = ['studio.auth_backend.MergedAccountBackend', 'django.contrib.auth.backends.ModelBackend']

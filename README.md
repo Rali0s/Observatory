@@ -23,6 +23,8 @@ Create an account through `/join/` or Xverse sign-in. An existing account can li
 
 ## Features and setup
 
+- **Account merging:** verify both password or wallet accounts, then combine writing, access, and sign-in methods. Admin and paid accounts take priority. See [account merging](Mainstream%20Toolkit/docs/ACCOUNT_MERGING.md).
+
 - **Mobile reading:** a focused phone layout for reading, author discovery, account access, saved stories, and invite links. Writing and management pages direct readers to the desktop app. See [mobile experience](Mainstream%20Toolkit/docs/MOBILE_READING.md).
 
 - **Visual writing:** switch between a formatting editor and Markdown, with headings, bold/italic, lists, quotes, undo/redo, and a help guide. See [writing editor](Mainstream%20Toolkit/docs/WRITING_EDITOR.md).
