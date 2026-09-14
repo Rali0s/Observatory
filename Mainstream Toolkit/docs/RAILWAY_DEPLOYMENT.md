@@ -102,3 +102,15 @@ Code commit `f49f2d6` is live on web (`43735fd0-b7f2-4cd4-86b4-89c9a324cb72`) an
 - Local development was restarted with the new code. Deployment used clean Git archives; no local accounts, databases, or credentials were uploaded. Existing payment flags and domain settings were preserved.
 
 See [mobile reading and invite links](MOBILE_READING.md).
+
+## Verified account merging deployed — 2026-09-14
+
+Code commit `4a960f2` is deployed to web (`8c5f7e79-4523-4822-95f3-8878ff3f3878`) and worker (`ad3f5275-ec3a-4e6e-93b4-b3082c7b53ca`), both SUCCESS. Migration 0012 adds merge attempts, retained account aliases, wallet proof scope, and original billing identity preservation.
+
+- Account and wallet-conflict links open the verified merge flow. Both accounts require fresh password or linked-wallet proof, then an explicit review and confirmation. Admin accounts take priority over paid accounts, then wallet accounts.
+- The full PostgreSQL suite passed 123 tests. Subsequent final merge/concurrency checks passed 17 tests, and the final quota regression run passed all 13 merge tests. All 19 frontend tests, Django checks, and migration consistency passed.
+- Browser verification used disposable local accounts: password verification of both accounts, paid-account priority, the mobile review screen, and successful consolidation were verified. No production account was merged and no real wallet signature or payment was requested during verification.
+- Live health and login returned 200; anonymous access to the merge page correctly returns to sign-in. The production Xverse bundle matches the tested build, including the actionable wallet-conflict link.
+- Local development was migrated and restarted. Existing payment switches and domain settings were preserved.
+
+See [account merging behavior and operations](ACCOUNT_MERGING.md).
